@@ -44,7 +44,7 @@ class User extends Authenticatable
 
     public function parking_lots()
     {
-        return $this->hasMany(ParkingLot::class, 'user_id');
+        return $this->hasMany(ParkingLot::class, 'owner_id');
     }
 
     public function cashiers()
