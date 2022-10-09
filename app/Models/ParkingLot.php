@@ -30,6 +30,11 @@ class ParkingLot extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
+    public function cashiers()
+    {
+        return $this->hasMany(Cashier::class, 'parking_lot_id');
+    }
+
     public function parking_spots()
     {
         return $this->hasMany(ParkingSpot::class, 'parking_lot_id');
