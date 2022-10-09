@@ -13,14 +13,16 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('users', function (Blueprint $table) {
+        Schema::create('parking_spots', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
-            $table->rememberToken();
+            $table->integer('row');
+            $table->integer('column');
+            $table->foreignId('parking_lot_id');
             $table->timestamps();
+
+            $table->foreign('parking_lot_id')->references('id')->on('parking_lots')
+                ->onDelete('cascade')
+                ->onUpdate('cascade');
         });
     }
 
@@ -31,6 +33,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('users');
+        Schema::dropIfExists('parking_spots');
     }
 };
