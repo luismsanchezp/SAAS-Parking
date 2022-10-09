@@ -13,15 +13,19 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('parking_lots', function (Blueprint $table) {
+        Schema::create('cashiers', function (Blueprint $table) {
             $table->id();
-            $table->string('name', 30);
-            $table->integer('rows');
-            $table->integer('columns');
-            $table->foreignId('owner_id');
+            $table->string('name', 25);
+            $table->string('surname', 25);
+            $table->foreignId('user_id');
+            $table->foreignId('parking_lot_id');
             $table->timestamps();
 
-            $table->foreign('owner_id')->references('id')->on('users')
+            $table->foreign('user_id')->references('id')->on('users')
+                ->onDelete('cascade')
+                ->onUpdate('cascade');
+
+            $table->foreign('parking_lot_id')->references('id')->on('parking_lots')
                 ->onDelete('cascade')
                 ->onUpdate('cascade');
         });
@@ -34,6 +38,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('parking_lots');
+        Schema::dropIfExists('cashiers');
     }
 };
