@@ -17,8 +17,8 @@ class AuthController extends Controller
         // para hacer la autenticación: "email" y "password".
         try {
             $request->validate([
-                'email' => 'required|string|email|max:255|exists:users',
-                'password' => 'required|string|min:7',
+                'email' => 'required|string|min:3|max:254|email:rfc,dns',
+                'password' => 'required|string|min:8|max:16',
             ]);
         } catch (ValidationException $e) {
             return response()->json([
@@ -28,7 +28,8 @@ class AuthController extends Controller
         // Verificar que los datos provistos sean los correctos y que
         // efectivamente el usuario se autentique con ellos utilizando
         // los datos de la tabla "users".
-        if (!Auth::attempt($request->only('email', 'password'))) {
+        $credentials = $request->only('email', 'password');
+        if (!Auth::attempt($credentials)) {
             return response()->json([
                 'message' => 'Invalid login details'
             ], 401);

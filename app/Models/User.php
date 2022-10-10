@@ -8,6 +8,8 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
+use Exception;
+
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
@@ -50,5 +52,23 @@ class User extends Authenticatable
     public function cashiers()
     {
         return $this->hasMany(Cashier::class, 'user_id');
+    }
+
+    public static function findByUsername(string $username)
+    {
+        try {
+            return User::where('username', $username)->firstOrFail();
+        } catch (Exception $e) {
+            return NULL;
+        }
+    }
+
+    public static function findByEmail(string $email)
+    {
+        try {
+            return User::where('email', $email)->firstOrFail();
+        } catch (Exception $e) {
+            return NULL;
+        }
     }
 }

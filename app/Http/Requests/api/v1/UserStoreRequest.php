@@ -2,11 +2,11 @@
 
 namespace App\Http\Requests\api\v1;
 
-use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class UserUpdateRequest extends FormRequest
+class UserStoreRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -26,9 +26,9 @@ class UserUpdateRequest extends FormRequest
     public function rules()
     {
         return [
-            "username" => "string|min:3|max:256|alpha_dash|unique:users,username",
-            "email" => "string|min:3|max:254|email:rfc,dns|unique:users,email",
-            "password" => "string|min:8|max:16",
+            "username" => "required|string|min:3|max:256|alpha_dash|unique:users,username",
+            "email" => "required|string|min:3|max:254|email:rfc,dns|unique:users,email",
+            "password" => "required|string|min:8|max:16",
         ];
     }
 
@@ -37,4 +37,5 @@ class UserUpdateRequest extends FormRequest
         throw new HttpResponseException(response()->json($validator->errors(),
             422));
     }
+
 }

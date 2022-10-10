@@ -6,7 +6,7 @@ use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class UserUpdateRequest extends FormRequest
+class UserIndexRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -26,9 +26,8 @@ class UserUpdateRequest extends FormRequest
     public function rules()
     {
         return [
-            "username" => "string|min:3|max:256|alpha_dash|unique:users,username",
-            "email" => "string|min:3|max:254|email:rfc,dns|unique:users,email",
-            "password" => "string|min:8|max:16",
+            "username" => "string|min:3|max:256|alpha_dash|exists:users,username",
+            "email" => "string|min:3|max:254|email:rfc,dns|exists:users,email",
         ];
     }
 

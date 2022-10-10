@@ -5,6 +5,14 @@ namespace App\Http\Controllers\api\v1;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+
+use App\Http\Resources\UserResource;
+use App\Http\Requests\api\v1\UserStoreRequest;
+use App\Http\Requests\api\v1\UserUpdateRequest;
+use App\Http\Requests\api\v1\UserIndexRequest;
+
+use Illuminate\Support\Str;
 
 class UserController extends Controller
 {
@@ -13,9 +21,25 @@ class UserController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(UserIndexRequest $request)
     {
-        //
+        if ($request->exists('username'))
+        {
+            $username = $request->input('username');
+            $user = User::findByUsername($username);
+            return (new UserResource($user))
+                ->response()
+                ->setStatusCode(200);
+        } elseif ($request->exists('email')){
+            $email = $request->input('email');
+            $user = User::findByEmail($email);
+            return (new UserResource($user))
+                ->response()
+                ->setStatusCode(200);
+        } else {
+            $users = User::orderBy('username', 'asc')->get();
+            return response()->json(['data' => UserResource::collection($users)], 200);
+        }
     }
 
     /**
@@ -24,9 +48,16 @@ class UserController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(UserStoreRequest $request)
     {
-        //
+        $username = Str::lower($request->input('username'));
+        $email = $request->input('email');
+        $password = $request->input('password');
+        $password = Hash::make($password);
+        $user = User::create(['username'=>$username, 'email'=>$email, 'password'=>$password]);
+        return (new UserResource($user))
+            ->response()
+            ->setStatusCode(200);
     }
 
     /**
@@ -37,7 +68,9 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
-        //
+        return (new UserResource($user))
+            ->response()
+            ->setStatusCode(200);
     }
 
     /**
@@ -47,9 +80,27 @@ class UserController extends Controller
      * @param  \App\Models\User  $user
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, User $user)
+    public function update(UserUpdateRequest $request, User $user)
     {
-        //
+
+        if ($request->exists('username')){
+            $username = Str::lower($request->input('username'));
+            $user->username = $username;
+        }
+        if ($request->exists('email')){
+            $email = $request->input('email');
+            $user->email = $email;
+        }
+        if ($request->exists('password')){
+            $password = $request->input('password');
+            $password = Hash::make($password);
+            $user->password = $password;
+        }
+        $user->save();
+
+        return (new UserResource($user))
+            ->response()
+            ->setStatusCode(200);
     }
 
     /**
