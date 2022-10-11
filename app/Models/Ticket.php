@@ -10,6 +10,8 @@ class Ticket extends Model
     use HasFactory;
 
     protected $fillable = [
+        'entry_date',
+        'remove_date',
         'parking_spot_id',
         'vehicle_id',
     ];
