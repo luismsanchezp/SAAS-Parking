@@ -60,9 +60,9 @@ Route::middleware(['auth:sanctum'])->group(function() {
         [App\Http\Controllers\api\v1\PersonController::class,'update'])->name('persons.update');
 
     //ParkingLot routes
-    Route::post('v1/parkinglots',
+    Route::post('v1/users/{user}/parkinglots',
         [App\Http\Controllers\api\v1\ParkingLotController::class,'store'])->name('parkinglots.store');
-    Route::put('v1/parkinglots/{parkingLot}',
+    Route::put('v1/users/{user}/parkinglots/{parkingLot}',
         [App\Http\Controllers\api\v1\ParkingLotController::class,'update'])->name('parkinglots.update');
 
     //Parking Spot routes

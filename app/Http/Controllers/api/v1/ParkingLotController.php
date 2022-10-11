@@ -51,23 +51,28 @@ class ParkingLotController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(ParkingLotStoreRequest $request)
+    public function store(ParkingLotStoreRequest $request, User $user)
     {
         $id = Auth::user()->id;
-        $name = $request->input('name');
-        $rows = $request->input('rows');
-        $columns = $request->input('columns');
-        $owner_id = $id;
-        $parkingLot = ParkingLot::create(['name'=>$name,
-            'rows'=>$rows, 'columns'=>$columns, 'owner_id'=>$owner_id]);
-        for($r = 1; $r <= $rows; $r++){
-            for($c = 1; $c <= $columns; $c++){
-                ParkingSpot::create(['row'=>$r, 'column'=>$c,'parking_lot_id'=>$parkingLot->id]);
+        if ($user->id == $id){
+            $name = $request->input('name');
+            $rows = $request->input('rows');
+            $columns = $request->input('columns');
+            $owner_id = $id;
+            $parkingLot = ParkingLot::create(['name'=>$name,
+                'rows'=>$rows, 'columns'=>$columns, 'owner_id'=>$owner_id]);
+            for($r = 1; $r <= $rows; $r++){
+                for($c = 1; $c <= $columns; $c++){
+                    ParkingSpot::create(['row'=>$r, 'column'=>$c,'parking_lot_id'=>$parkingLot->id]);
+                }
             }
+            return (new ParkingLotResource($parkingLot))
+                ->response()
+                ->setStatusCode(200);
+        } else {
+            return response()->json(['data' => 'You cannot create parking lots to other users.'])
+                ->setStatusCode(403);
         }
-        return (new ParkingLotResource($parkingLot))
-            ->response()
-            ->setStatusCode(200);
     }
 
     /**
@@ -94,22 +99,26 @@ class ParkingLotController extends Controller
      * @param  \App\Models\ParkingLot  $parkingLot
      * @return \Illuminate\Http\Response
      */
-    public function update(ParkingLotUpdateRequest $request, ParkingLot $parkingLot)
+    public function update(ParkingLotUpdateRequest $request, User $user, ParkingLot $parkingLot)
     {
-        $id = Auth::user()->id;
-        if ($id == $parkingLot->owner_id){
-            if ($request->exists('name')){
-                $name = $request->input('name');
-                $parkingLot->name = $name;
-            }
-            $parkingLot->save();
+        if ($user->id == $parkingLot->owner_id){
+            $id = Auth::user()->id;
+            if ($id == $parkingLot->owner_id){
+                if ($request->exists('name')){
+                    $name = $request->input('name');
+                    $parkingLot->name = $name;
+                }
+                $parkingLot->save();
 
-            return (new ParkingLotResource($parkingLot))
-                ->response()
-                ->setStatusCode(200);
+                return (new ParkingLotResource($parkingLot))
+                    ->response()
+                    ->setStatusCode(200);
+            } else {
+                return response()->json(['data' => 'You do not own this parking lot.'])
+                    ->setStatusCode(403);
+            }
         } else {
-            return response()->json(['data' => 'You do not own this parking lot.'])
-                ->setStatusCode(403);
+            return response()->json(['message'=>'This parking lot with ID '.$parkingLot->id.' does not belong to this user.'], 406);
         }
     }
 

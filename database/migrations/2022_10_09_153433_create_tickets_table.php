@@ -19,7 +19,6 @@ return new class extends Migration
             $table->dateTime('remove_date')->nullable();
             $table->foreignId('parking_spot_id');
             $table->foreignId('vehicle_id');
-            $table->foreignId('cashier_id');
             $table->timestamps();
 
             $table->foreign('parking_spot_id')->references('id')->on('parking_spots')
@@ -27,10 +26,6 @@ return new class extends Migration
                 ->onUpdate('cascade');
 
             $table->foreign('vehicle_id')->references('id')->on('vehicles')
-                ->onDelete('cascade')
-                ->onUpdate('cascade');
-
-            $table->foreign('cashier_id')->references('id')->on('cashiers')
                 ->onDelete('cascade')
                 ->onUpdate('cascade');
         });
