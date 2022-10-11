@@ -4,6 +4,7 @@ namespace App\Http\Controllers\api\v1;
 
 use App\Http\Controllers\Controller;
 use App\Models\ParkingLot;
+use App\Models\ParkingSpot;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -24,29 +25,22 @@ class ParkingLotController extends Controller
     {
         if ($request->exists('name'))
         {
-            if ($request->exists('username')){
-                $user = User::findByUsername($request->input('username'));
-                $name = $request->input('name');
-                $parkingLots = ParkingLot::findByNameOfUser($name, $user->id);
-                return response()->json(['data' => ParkingLotResource::collection($parkingLots)], 200);
-            } elseif ($request->exists('ownerid')){
-                $ownerid = $request->input('ownerid');
-                $name = $request->input('name');
-                $parkingLots = ParkingLot::findByNameOfUser($name, $ownerid);
-                return response()->json(['data' => ParkingLotResource::collection($parkingLots)], 200);
-            } else {
-                $parkingLots = ParkingLot::findByName($request->input('name'));
-                return response()->json(['data' => ParkingLotResource::collection($parkingLots)], 200);
-            }
-        } elseif ($request->exists('username')) {
-            $user = User::findByUsername($request->input('username'));
-            $parkingLots = ParkingLot::findByOwnerId($user->id);
-            return response()->json(['data' => ParkingLotResource::collection($parkingLots)], 200);
-        } else if ($request->exists('ownerid')) {
-            $parkingLots = ParkingLot::findByOwnerId($request->input('ownerid'));
+            $parkingLots = ParkingLot::findByName($request->input('name'));
             return response()->json(['data' => ParkingLotResource::collection($parkingLots)], 200);
         } else {
             $parkingLots = ParkingLot::orderBy('name', 'asc')->get();
+            return response()->json(['data' => ParkingLotResource::collection($parkingLots)], 200);
+        }
+    }
+
+    public function indexByUser(User $user, ParkingLotIndexRequest $request){
+        if ($request->exists('name'))
+        {
+            $name = $request->input('name');
+            $parkingLots = ParkingLot::findByNameOfUser($name, $user->id);
+            return response()->json(['data' => ParkingLotResource::collection($parkingLots)], 200);
+        } else {
+            $parkingLots = ParkingLot::findByOwnerId($user->id);
             return response()->json(['data' => ParkingLotResource::collection($parkingLots)], 200);
         }
     }
@@ -66,6 +60,11 @@ class ParkingLotController extends Controller
         $owner_id = $id;
         $parkingLot = ParkingLot::create(['name'=>$name,
             'rows'=>$rows, 'columns'=>$columns, 'owner_id'=>$owner_id]);
+        for($r = 1; $r <= $rows; $r++){
+            for($c = 1; $c <= $columns; $c++){
+                ParkingSpot::create(['row'=>$r, 'column'=>$c,'parking_lot_id'=>$parkingLot->id]);
+            }
+        }
         return (new ParkingLotResource($parkingLot))
             ->response()
             ->setStatusCode(200);
@@ -77,11 +76,15 @@ class ParkingLotController extends Controller
      * @param  \App\Models\ParkingLot  $parkingLot
      * @return \Illuminate\Http\Response
      */
-    public function show(ParkingLot $parkingLot)
+    public function show(User $user, ParkingLot $parkingLot)
     {
-        return (new ParkingLotResource($parkingLot))
-            ->response()
-            ->setStatusCode(200);
+        if ($parkingLot->owner_id == $user->id){
+            return (new ParkingLotResource($parkingLot))
+                ->response()
+                ->setStatusCode(200);
+        } else {
+            return response()->json(['message'=>'This parking lot with ID '.$parkingLot->id.' does not belong to this user.'], 406);
+        }
     }
 
     /**

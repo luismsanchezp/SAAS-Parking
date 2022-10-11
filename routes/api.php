@@ -25,7 +25,9 @@ Route::post('v1/users',
 //ParkingLot routes
 Route::get('v1/parkinglots',
     [App\Http\Controllers\api\v1\ParkingLotController::class,'index'])->name('parkinglots.index');
-Route::get('v1/parkinglots/{parkingLot}',
+Route::get('v1/users/{user}/parkinglots',
+    [App\Http\Controllers\api\v1\ParkingLotController::class,'indexByUser'])->name('parkinglots.indexByUser');
+Route::get('v1/users/{user}/parkinglots/{parkingLot}',
     [App\Http\Controllers\api\v1\ParkingLotController::class,'show'])->name('parkinglots.show');
 
 //VehicleType routes
@@ -64,9 +66,9 @@ Route::middleware(['auth:sanctum'])->group(function() {
         [App\Http\Controllers\api\v1\ParkingLotController::class,'update'])->name('parkinglots.update');
 
     //Parking Spot routes
-    Route::get('v1/parkingspots',
+    Route::get('v1/parkinglots/{parkingLot}/parkingspots',
         [App\Http\Controllers\api\v1\ParkingSpotController::class,'index'])->name('parkingspots.index');
-    Route::get('v1/parkingspots/{parkingspot}',
+    Route::get('v1/parkinglots/{parkingLot}/parkingspots/{parkingSpot}',
         [App\Http\Controllers\api\v1\ParkingSpotController::class,'show'])->name('parkingspots.show');
 
     //Ticket routes
@@ -92,14 +94,4 @@ Route::middleware(['auth:sanctum'])->group(function() {
     //VehicleType routes
     Route::post('v1/vehicletypes',
         [App\Http\Controllers\api\v1\VehicleTypeController::class,'store'])->name('vehicletypes.store');
-
-    //Cashier routes
-    Route::get('v1/cashiers',
-        [App\Http\Controllers\api\v1\CashierController::class,'index'])->name('cashiers.index');
-    Route::get('v1/cashiers/{cashier}',
-        [App\Http\Controllers\api\v1\CashierController::class,'show'])->name('cashiers.show');
-    Route::post('v1/cashiers',
-        [App\Http\Controllers\api\v1\CashierController::class,'store'])->name('cashiers.store');
-    Route::put('v1/cashiers/{cashier}',
-        [App\Http\Controllers\api\v1\CashierController::class,'update'])->name('cashiers.update');
 });
