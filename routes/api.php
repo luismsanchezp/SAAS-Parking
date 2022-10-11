@@ -82,14 +82,12 @@ Route::middleware(['auth:sanctum'])->group(function() {
         [App\Http\Controllers\api\v1\TicketController::class,'update'])->name('tickets.update');
 
     //Vehicle routes
-    Route::get('v1/vehicles',
+    Route::get('v1/persons/{person}/vehicles',
         [App\Http\Controllers\api\v1\VehicleController::class,'index'])->name('vehicles.index');
-    Route::get('v1/vehicles/{vehicle}',
+    Route::get('v1/persons/{person}/vehicles/{vehicle}',
         [App\Http\Controllers\api\v1\VehicleController::class,'show'])->name('vehicles.show');
-    Route::post('v1/vehicles',
+    Route::post('v1/persons/{person}/vehicles',
         [App\Http\Controllers\api\v1\VehicleController::class,'store'])->name('vehicles.store');
-    Route::put('v1/vehicles/{vehicle}',
-        [App\Http\Controllers\api\v1\VehicleController::class,'update'])->name('vehicles.update');
 
     //VehicleType routes
     Route::post('v1/parkinglots/{parkingLot}/vehicletypes',
