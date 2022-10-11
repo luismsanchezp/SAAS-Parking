@@ -22,6 +22,7 @@ class PersonResource extends JsonResource
             'gov_id' => $this->gov_id,
             'phone_number' => $this->phone_number,
             'parking_lot_id' => $this->parking_lot_id,
+            'vehicles' => VehicleResource::collection($this->vehicles),
         ];
     }
 }

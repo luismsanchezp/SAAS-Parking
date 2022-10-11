@@ -5,6 +5,7 @@ namespace App\Http\Controllers\api\v1;
 use App\Http\Controllers\Controller;
 use App\Models\ParkingSpot;
 use App\Models\ParkingLot;
+use App\Models\Ticket;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Resources\ParkingSpotResource;
@@ -16,10 +17,23 @@ class ParkingSpotController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(ParkingLot $parkingLot)
+    public function index(ParkingLot $parkingLot, Request $request)
     {
         $user_id = Auth::user()->id;
         if ($parkingLot->owner_id == $user_id){
+            if ($request->exists('free_spots')){
+                if ($request->input('free_spots')){
+                    $freeParkingSpots = collect([]);
+                    $spots = ParkingSpot::where('parking_lot_id', $parkingLot->id)->get();
+                    foreach ($spots as $p) {
+                        $res = $this->getFreeParkingSpot($p);
+                        if ($res != NULL){
+                            $freeParkingSpots->push($res);
+                        }
+                    }
+                    return response()->json(['data' => ParkingSpotResource::collection($freeParkingSpots)], 200);
+                }
+            }
             $parkingSpots = ParkingSpot::where('parking_lot_id', $parkingLot->id)->get();
             return response()->json(['data' => ParkingSpotResource::collection($parkingSpots)], 200);
         } else {
@@ -85,5 +99,26 @@ class ParkingSpotController extends Controller
     {
         return response()->json(['data' => 'Delete method is not allowed.'])
             ->setStatusCode(405);
+    }
+
+    public function getFreeParkingSpot(ParkingSpot $parkingSpot){
+        $most_recent_ticket = Ticket::where('parking_spot_id', $parkingSpot->id)->orderBy('entry_date', 'desc')->limit(1)->get()->first();
+        $spot_tickets_count = Ticket::where('parking_spot_id', $parkingSpot->id)->get()->count();
+        if ($spot_tickets_count == 0){
+            return $parkingSpot;
+        } elseif ($most_recent_ticket->remove_date != NULL){
+            return $parkingSpot;
+        } else {
+            return NULL;
+        }
+    }
+
+    public function getAllFreeParkingSpots(ParkingLot $parkingLot){
+        $user_id = Auth::user()->id;
+        if ($parkingLot->owner_id == $user_id){
+
+        } else {
+            return response()->json(['message'=>'You do not own this parking lot.'], 403);
+        }
     }
 }
