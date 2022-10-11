@@ -25,7 +25,7 @@ Route::post('v1/users',
 //ParkingLot routes
 Route::get('v1/parkinglots',
     [App\Http\Controllers\api\v1\ParkingLotController::class,'index'])->name('parkinglots.index');
-Route::get('v1/parkinglots/{parkinglot}',
+Route::get('v1/parkinglots/{parkingLot}',
     [App\Http\Controllers\api\v1\ParkingLotController::class,'show'])->name('parkinglots.show');
 
 //VehicleType routes
@@ -60,7 +60,7 @@ Route::middleware(['auth:sanctum'])->group(function() {
     //ParkingLot routes
     Route::post('v1/parkinglots',
         [App\Http\Controllers\api\v1\ParkingLotController::class,'store'])->name('parkinglots.store');
-    Route::put('v1/parkinglots/{parkinglot}',
+    Route::put('v1/parkinglots/{parkingLot}',
         [App\Http\Controllers\api\v1\ParkingLotController::class,'update'])->name('parkinglots.update');
 
     //Parking Spot routes

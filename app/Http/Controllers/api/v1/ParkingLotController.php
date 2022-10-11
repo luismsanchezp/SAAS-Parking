@@ -4,7 +4,14 @@ namespace App\Http\Controllers\api\v1;
 
 use App\Http\Controllers\Controller;
 use App\Models\ParkingLot;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
+use App\Http\Requests\api\v1\ParkingLotStoreRequest;
+use App\Http\Requests\api\v1\ParkingLotIndexRequest;
+use App\Http\Requests\api\v1\ParkingLotUpdateRequest;
+use App\Http\Resources\ParkingLotResource;
 
 class ParkingLotController extends Controller
 {
@@ -13,9 +20,35 @@ class ParkingLotController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(ParkingLotIndexRequest $request)
     {
-        //
+        if ($request->exists('name'))
+        {
+            if ($request->exists('username')){
+                $user = User::findByUsername($request->input('username'));
+                $name = $request->input('name');
+                $parkingLots = ParkingLot::findByNameOfUser($name, $user->id);
+                return response()->json(['data' => ParkingLotResource::collection($parkingLots)], 200);
+            } elseif ($request->exists('ownerid')){
+                $ownerid = $request->input('ownerid');
+                $name = $request->input('name');
+                $parkingLots = ParkingLot::findByNameOfUser($name, $ownerid);
+                return response()->json(['data' => ParkingLotResource::collection($parkingLots)], 200);
+            } else {
+                $parkingLots = ParkingLot::findByName($request->input('name'));
+                return response()->json(['data' => ParkingLotResource::collection($parkingLots)], 200);
+            }
+        } elseif ($request->exists('username')) {
+            $user = User::findByUsername($request->input('username'));
+            $parkingLots = ParkingLot::findByOwnerId($user->id);
+            return response()->json(['data' => ParkingLotResource::collection($parkingLots)], 200);
+        } else if ($request->exists('ownerid')) {
+            $parkingLots = ParkingLot::findByOwnerId($request->input('ownerid'));
+            return response()->json(['data' => ParkingLotResource::collection($parkingLots)], 200);
+        } else {
+            $parkingLots = ParkingLot::orderBy('name', 'asc')->get();
+            return response()->json(['data' => ParkingLotResource::collection($parkingLots)], 200);
+        }
     }
 
     /**
@@ -24,9 +57,18 @@ class ParkingLotController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(ParkingLotStoreRequest $request)
     {
-        //
+        $id = Auth::user()->id;
+        $name = $request->input('name');
+        $rows = $request->input('rows');
+        $columns = $request->input('columns');
+        $owner_id = $id;
+        $parkingLot = ParkingLot::create(['name'=>$name,
+            'rows'=>$rows, 'columns'=>$columns, 'owner_id'=>$owner_id]);
+        return (new ParkingLotResource($parkingLot))
+            ->response()
+            ->setStatusCode(200);
     }
 
     /**
@@ -37,7 +79,9 @@ class ParkingLotController extends Controller
      */
     public function show(ParkingLot $parkingLot)
     {
-        //
+        return (new ParkingLotResource($parkingLot))
+            ->response()
+            ->setStatusCode(200);
     }
 
     /**
@@ -47,9 +91,23 @@ class ParkingLotController extends Controller
      * @param  \App\Models\ParkingLot  $parkingLot
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, ParkingLot $parkingLot)
+    public function update(ParkingLotUpdateRequest $request, ParkingLot $parkingLot)
     {
-        //
+        $id = Auth::user()->id;
+        if ($id == $parkingLot->owner_id){
+            if ($request->exists('name')){
+                $name = $request->input('name');
+                $parkingLot->name = $name;
+            }
+            $parkingLot->save();
+
+            return (new ParkingLotResource($parkingLot))
+                ->response()
+                ->setStatusCode(200);
+        } else {
+            return response()->json(['data' => 'You do not own this parking lot.'])
+                ->setStatusCode(403);
+        }
     }
 
     /**
@@ -60,6 +118,7 @@ class ParkingLotController extends Controller
      */
     public function destroy(ParkingLot $parkingLot)
     {
-        //
+        return response()->json(['data' => 'Delete method is not allowed.'])
+            ->setStatusCode(405);
     }
 }
