@@ -3,8 +3,13 @@
 namespace App\Http\Controllers\api\v1;
 
 use App\Http\Controllers\Controller;
+use App\Models\ParkingLot;
 use App\Models\VehicleType;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use App\Http\Resources\VehicleTypeResource;
+
+use Carbon\Carbon;
 
 class VehicleTypeController extends Controller
 {
@@ -13,9 +18,10 @@ class VehicleTypeController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(ParkingLot $parkingLot)
     {
-        //
+        $vehicleTypes = VehicleType::where('parking_lot_id', $parkingLot->id)->get();
+        return response()->json(['data' => VehicleTypeResource::collection($vehicleTypes)], 200);
     }
 
     /**
@@ -24,9 +30,23 @@ class VehicleTypeController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(ParkingLot $parkingLot, Request $request)
     {
-        //
+        $id = Auth::user()->id;
+        if ($parkingLot->owner_id == $id){
+            $type = $request->input('type');
+            $tariff = $request->input('tariff');
+            $creation_date = Carbon::now()->toDateTimeString();
+            $vehicleType = VehicleType::create(['type'=>$type,
+                'tariff'=>$tariff, 'creation_date'=>$creation_date,
+                'parking_lot_id'=>$parkingLot->id]);
+            return (new VehicleTypeResource($vehicleType))
+                ->response()
+                ->setStatusCode(200);
+        } else {
+            return response()->json(['data' => 'You cannot create vehicle types to parking lots that do not belong to you.'])
+                ->setStatusCode(403);
+        }
     }
 
     /**
@@ -35,9 +55,16 @@ class VehicleTypeController extends Controller
      * @param  \App\Models\VehicleType  $vehicleType
      * @return \Illuminate\Http\Response
      */
-    public function show(VehicleType $vehicleType)
+    public function show(ParkingLot $parkingLot, VehicleType $vehicleType)
     {
-        //
+
+        if ($vehicleType->parking_lot_id == $parkingLot->id){
+            return (new VehicleTypeResource($vehicleType))
+                ->response()
+                ->setStatusCode(200);
+        } else {
+            return response()->json(['message'=>'This parking lot with ID '.$parkingLot->id.' does not belong to vehicle type.'], 406);
+        }
     }
 
     /**

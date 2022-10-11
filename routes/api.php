@@ -31,9 +31,9 @@ Route::get('v1/users/{user}/parkinglots/{parkingLot}',
     [App\Http\Controllers\api\v1\ParkingLotController::class,'show'])->name('parkinglots.show');
 
 //VehicleType routes
-Route::get('v1/vehicletypes',
+Route::get('v1/parkinglots/{parkingLot}/vehicletypes',
     [App\Http\Controllers\api\v1\VehicleTypeController::class,'index'])->name('vehicletypes.index');
-Route::get('v1/vehicletypes/{vehicletype}',
+Route::get('v1/parkinglots/{parkingLot}/vehicletypes/{vehicleType}',
     [App\Http\Controllers\api\v1\VehicleTypeController::class,'show'])->name('vehicletypes.show');
 
 Route::post('/v1/login',
@@ -92,6 +92,6 @@ Route::middleware(['auth:sanctum'])->group(function() {
         [App\Http\Controllers\api\v1\VehicleController::class,'update'])->name('vehicles.update');
 
     //VehicleType routes
-    Route::post('v1/vehicletypes',
+    Route::post('v1/parkinglots/{parkingLot}/vehicletypes',
         [App\Http\Controllers\api\v1\VehicleTypeController::class,'store'])->name('vehicletypes.store');
 });
