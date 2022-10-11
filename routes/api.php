@@ -50,13 +50,13 @@ Route::middleware(['auth:sanctum'])->group(function() {
         [App\Http\Controllers\api\v1\UserController::class,'update'])->name('users.update');
 
     //Person routes
-    Route::get('v1/persons',
+    Route::get('v1/parkinglots/{parkingLot}/persons',
         [App\Http\Controllers\api\v1\PersonController::class,'index'])->name('persons.index');
-    Route::get('v1/persons/{person}',
+    Route::get('v1/parkinglots/{parkingLot}/persons/{person}',
         [App\Http\Controllers\api\v1\PersonController::class,'show'])->name('persons.show');
-    Route::post('v1/persons',
+    Route::post('v1/parkinglots/{parkingLot}/persons',
         [App\Http\Controllers\api\v1\PersonController::class,'store'])->name('persons.store');
-    Route::put('v1/persons/{person}',
+    Route::put('v1/parkinglots/{parkingLot}/persons/{person}',
         [App\Http\Controllers\api\v1\PersonController::class,'update'])->name('persons.update');
 
     //ParkingLot routes

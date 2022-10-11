@@ -6,9 +6,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-use App\Enums\GovIDTypeEnum;
-
-class ParkingLotUpdateRequest extends FormRequest
+class PersonStoreRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -28,11 +26,7 @@ class ParkingLotUpdateRequest extends FormRequest
     public function rules()
     {
         return [
-            "name" => "required|string|min:3|max:25|alpha",
-            "surname" => "required|string|min:3|max:25|alpha",
-            "id_type" => ["required","string","min:4","max:4",new Enum(GovIdTypeEnum::class)],
-            "gov_id" => "required|string|digits_between:10,10|numeric|unique:persons,gov_id",
-            "phone_number" => "required|string|digits_between:10,10|numeric|unique:persons,phone_number"
+            //
         ];
     }
 
