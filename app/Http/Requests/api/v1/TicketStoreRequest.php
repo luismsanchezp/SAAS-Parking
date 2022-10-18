@@ -27,7 +27,6 @@ class TicketStoreRequest extends FormRequest
     {
         return [
             "parking_spot_id" => "required|numeric|integer|exists:parking_spots,id",
-            "vehicle_id" => "required|numeric|integer|exists:vehicles,id",
         ];
     }
 

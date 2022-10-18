@@ -2,7 +2,7 @@
 
 namespace App\Enums;
 
-enum GovIDTypeEnum: string {
+enum GovIdTypeEnum: string {
     case CC = 'C.C.';
     case CE = 'C.E.';
     case TI = 'T.I.';

@@ -56,18 +56,17 @@ class TicketController extends Controller
                 $entry_date = Carbon::now()->toDateTimeString();
                 $remove_date = NULL;
                 $parking_spot_id = $request->input('parking_spot_id');
-                $vehicle_id = $request->input('vehicle_id');
                 if(Ticket::where('parking_spot_id', $parkingSpot->id)->get()->count() == 0){
                     $ticket = Ticket::create(['entry_date'=>$entry_date,
                         'remove_date'=>$remove_date, 'parking_spot_id'=>$parking_spot_id,
-                        'vehicle_id'=>$vehicle_id]);
+                        'vehicle_id'=>$vehicle->id]);
                     return (new TicketResource($ticket))
                         ->response()
                         ->setStatusCode(200);
                 } elseif($most_recent_ticket->remove_date != NULL) {
                     $ticket = Ticket::create(['entry_date'=>$entry_date,
                         'remove_date'=>$remove_date, 'parking_spot_id'=>$parking_spot_id,
-                        'vehicle_id'=>$vehicle_id]);
+                        'vehicle_id'=>$vehicle->id]);
                     return (new TicketResource($ticket))
                         ->response()
                         ->setStatusCode(200);

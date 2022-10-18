@@ -112,13 +112,4 @@ class ParkingSpotController extends Controller
             return NULL;
         }
     }
-
-    public function getAllFreeParkingSpots(ParkingLot $parkingLot){
-        $user_id = Auth::user()->id;
-        if ($parkingLot->owner_id == $user_id){
-
-        } else {
-            return response()->json(['message'=>'You do not own this parking lot.'], 403);
-        }
-    }
 }

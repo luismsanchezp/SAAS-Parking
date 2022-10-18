@@ -6,6 +6,9 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
+use Illuminate\Validation\Rules\Enum;
+use App\Enums\GovIdTypeEnum;
+
 class PersonStoreRequest extends FormRequest
 {
     /**
@@ -26,7 +29,11 @@ class PersonStoreRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            "name" => "required|string|min:3|max:25|alpha",
+            "surname" => "required|string|min:3|max:25|alpha",
+            "id_type" => ["required","string","min:4","max:4",new Enum(GovIdTypeEnum::class)],
+            "gov_id" => "required|string|digits_between:10,10|numeric|unique:people,gov_id",
+            "phone_number" => "required|string|digits_between:10,10|numeric|unique:people,phone_number"
         ];
     }
 

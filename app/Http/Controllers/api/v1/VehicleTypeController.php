@@ -8,6 +8,7 @@ use App\Models\VehicleType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Resources\VehicleTypeResource;
+use App\Http\Requests\api\v1\VehicleTypeStoreRequest;
 
 use Carbon\Carbon;
 
@@ -30,7 +31,7 @@ class VehicleTypeController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(ParkingLot $parkingLot, Request $request)
+    public function store(ParkingLot $parkingLot, VehicleTypeStoreRequest $request)
     {
         $id = Auth::user()->id;
         if ($parkingLot->owner_id == $id){
