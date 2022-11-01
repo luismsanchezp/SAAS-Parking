@@ -5,6 +5,7 @@ namespace App\Http\Controllers\api\v1;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
 use App\Http\Resources\UserResource;
@@ -112,5 +113,14 @@ class UserController extends Controller
     public function destroy(User $user)
     {
         //
+    }
+
+    public function get_id_with_token(Request $request)
+    {
+        $id = Auth::user()->id;
+        return response()->json(['data' => [
+            'id' => $id
+        ]])
+            ->setStatusCode(200);
     }
 }
