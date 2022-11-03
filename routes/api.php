@@ -84,6 +84,8 @@ Route::middleware(['auth:sanctum'])->group(function() {
         [App\Http\Controllers\api\v1\TicketController::class,'update'])->name('tickets.update');
 
     //Vehicle routes
+    Route::get('v1/parkinglots/{parkingLot}/vehicles',
+        [App\Http\Controllers\api\v1\VehicleController::class,'get_vehicle_by_license_plate'])->name('vehicles.show_vehicle');
     Route::get('v1/persons/{person}/vehicles',
         [App\Http\Controllers\api\v1\VehicleController::class,'index'])->name('vehicles.index');
     Route::get('v1/persons/{person}/vehicles/{vehicle}',

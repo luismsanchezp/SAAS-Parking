@@ -43,7 +43,7 @@ class VehicleTypeController extends Controller
                 'parking_lot_id'=>$parkingLot->id]);
             return (new VehicleTypeResource($vehicleType))
                 ->response()
-                ->setStatusCode(200);
+                ->setStatusCode(201);
         } else {
             return response()->json(['data' => 'You cannot create vehicle types to parking lots that do not belong to you.'])
                 ->setStatusCode(403);

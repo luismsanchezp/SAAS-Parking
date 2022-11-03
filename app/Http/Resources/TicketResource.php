@@ -18,8 +18,8 @@ class TicketResource extends JsonResource
             'id' =>$this->id,
             'entry_date' => $this->entry_date,
             'remove_date' => $this->remove_date,
-            'parking_spot' => new ParkingSpotResource($this->parking_spot),
-            'vehicle_id' => $this->vehicle_id,
+            'parking_spot' => new ParkingSpotResource($this->whenLoaded('parking_spot')),
+            'vehicle' => new VehicleResource($this->whenLoaded('vehicle')),
         ];
     }
 }

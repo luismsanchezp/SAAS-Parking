@@ -33,6 +33,25 @@ class VehicleController extends Controller
         }
     }
 
+    public function get_vehicle_by_license_plate(ParkingLot $parkingLot, Request $request) {
+        $id = Auth::user()->id;
+        if ($parkingLot->owner_id == $id){
+            $license_plate = $request->input('license_plate');
+            $vehicle = Vehicle::where('license_plate', $license_plate)->get()->first();
+            if ($vehicle != NULL) {
+                return (new VehicleResource($vehicle))
+                    ->response()
+                    ->setStatusCode(200);
+            } else {
+                return response()->json(['data' => 'Vehicle not found.'])
+                    ->setStatusCode(404);
+            }
+        } else {
+            return response()->json(['data' => 'This vehicle does not belong to your parking lot.'])
+                ->setStatusCode(403);
+        }
+    }
+
     /**
      * Store a newly created resource in storage.
      *
@@ -56,7 +75,7 @@ class VehicleController extends Controller
                     'color'=>$color, 'person_id'=>$person_id, 'vehicle_type_id'=>$vehicle_type_id]);
                 return (new VehicleResource($vehicle))
                     ->response()
-                    ->setStatusCode(200);
+                    ->setStatusCode(201);
             } else {
                 return response()->json(['data' => 'You cannot use vehicle types from other parking lots.'])
                     ->setStatusCode(403);

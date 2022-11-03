@@ -20,7 +20,8 @@ class VehicleResource extends JsonResource
             'color' => $this->color,
             'person_id' => $this->person_id,
             'vehicle_type_id' => $this->vehicle_type_id,
-            'tickets' => TicketResource::collection($this->tickets),
+            'tickets_num' => TicketResource::collection($this->tickets)->count(),
+            'tickets' => TicketResource::collection($this->tickets)->sortByDesc('entry_date'),
         ];
     }
 }

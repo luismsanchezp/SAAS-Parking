@@ -58,7 +58,7 @@ class UserController extends Controller
         $user = User::create(['username'=>$username, 'email'=>$email, 'password'=>$password]);
         return (new UserResource($user))
             ->response()
-            ->setStatusCode(200);
+            ->setStatusCode(201);
     }
 
     /**

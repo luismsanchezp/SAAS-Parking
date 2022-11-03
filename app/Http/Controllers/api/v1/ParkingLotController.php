@@ -73,7 +73,7 @@ class ParkingLotController extends Controller
             }
             return (new ParkingLotResource($parkingLot))
                 ->response()
-                ->setStatusCode(200);
+                ->setStatusCode(201);
         } else {
             return response()->json(['data' => 'You cannot create parking lots to other users.'])
                 ->setStatusCode(403);

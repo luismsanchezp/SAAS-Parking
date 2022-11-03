@@ -60,16 +60,16 @@ class TicketController extends Controller
                     $ticket = Ticket::create(['entry_date'=>$entry_date,
                         'remove_date'=>$remove_date, 'parking_spot_id'=>$parking_spot_id,
                         'vehicle_id'=>$vehicle->id]);
-                    return (new TicketResource($ticket))
+                    return (new TicketResource($ticket->loadMissing('parking_spot')->loadMissing('vehicle')))
                         ->response()
-                        ->setStatusCode(200);
+                        ->setStatusCode(201);
                 } elseif($most_recent_ticket->remove_date != NULL) {
                     $ticket = Ticket::create(['entry_date'=>$entry_date,
                         'remove_date'=>$remove_date, 'parking_spot_id'=>$parking_spot_id,
                         'vehicle_id'=>$vehicle->id]);
-                    return (new TicketResource($ticket))
+                    return (new TicketResource($ticket->loadMissing('parking_spot')->loadMissing('vehicle')))
                         ->response()
-                        ->setStatusCode(200);
+                        ->setStatusCode(201);
                 } elseif($most_recent_ticket->remove_date == NULL) {
                     return response()->json(['data' => 'Parking Spot is not available.'])
                         ->setStatusCode(406);
@@ -99,7 +99,7 @@ class TicketController extends Controller
             $parkingSpot = ParkingSpot::where('id', $ticket->parking_spot_id)->get()->first();
             $parkingLot = ParkingLot::where('id', $parkingSpot->parking_lot_id)->get()->first();
             if($parkingLot->owner_id == $id){
-                return (new TicketResource($ticket))
+                return (new TicketResource($ticket->loadMissing('parking_spot')->loadMissing('vehicle')))
                     ->response()
                     ->setStatusCode(200);
             } else {
@@ -129,7 +129,7 @@ class TicketController extends Controller
                 if($ticket->remove_date == NULL){
                     $ticket->remove_date = Carbon::now()->toDateTimeString();
                     $ticket->save();
-                    return (new TicketResource($ticket))
+                    return (new TicketResource($ticket->loadMissing('parking_spot')->loadMissing('vehicle')))
                         ->response()
                         ->setStatusCode(200);
                 } else {

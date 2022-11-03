@@ -26,9 +26,17 @@ class PersonController extends Controller
             {
                 $person = Person::where('gov_id', $request->input('govid'))->get()->first();
                 if ($person != NULL) {
-                    return (new PersonResource($person))
-                        ->response()
-                        ->setStatusCode(200);
+                    if ($person->parking_lot_id == $parkingLot->id){
+                        return (new PersonResource($person))
+                            ->response()
+                            ->setStatusCode(200);
+                    } else {
+                        return response()->json([
+                            'data' => 'Customer not found.'
+                        ])
+                            ->setStatusCode(404);
+                    }
+
                 } else {
                     return response()->json([
                         'data' => 'Customer not found.'
@@ -65,7 +73,7 @@ class PersonController extends Controller
                 'phone_number'=>$phone_number, 'parking_lot_id'=>$parkingLot->id]);
             return (new PersonResource($person))
                 ->response()
-                ->setStatusCode(200);
+                ->setStatusCode(201);
         } else {
             return response()->json(['data' => 'You cannot create customers to parking lots that do not belong to you.'])
                 ->setStatusCode(403);
