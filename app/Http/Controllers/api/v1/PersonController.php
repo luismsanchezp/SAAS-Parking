@@ -18,12 +18,27 @@ class PersonController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(ParkingLot $parkingLot)
+    public function index(ParkingLot $parkingLot, Request $request)
     {
         $user_id = Auth::user()->id;
         if ($parkingLot->owner_id == $user_id){
-            $people = Person::where('parking_lot_id', $parkingLot->id)->get();
-            return response()->json(['data' => PersonResource::collection($people)], 200);
+            if ($request->exists('govid'))
+            {
+                $person = Person::where('gov_id', $request->input('govid'))->get()->first();
+                if ($person != NULL) {
+                    return (new PersonResource($person))
+                        ->response()
+                        ->setStatusCode(200);
+                } else {
+                    return response()->json([
+                        'data' => 'Customer not found.'
+                    ])
+                        ->setStatusCode(404);
+                }
+            } else {
+                $people = Person::where('parking_lot_id', $parkingLot->id)->get();
+                return response()->json(['data' => PersonResource::collection($people)], 200);
+            }
         } else {
             return response()->json(['data' => 'You do not own this parking lot.'])
                 ->setStatusCode(403);

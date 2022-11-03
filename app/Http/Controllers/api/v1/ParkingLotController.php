@@ -33,7 +33,7 @@ class ParkingLotController extends Controller
             $parkingLots = ParkingLot::findByName($request->input('name'));
             return response()->json(['data' => ParkingLotResource::collection($parkingLots)], 200);
         } else {
-            $parkingLots = ParkingLot::orderBy('name', 'asc')->get();
+            $parkingLots = ParkingLot::orderBy('id', 'asc')->get();
             return response()->json(['data' => ParkingLotResource::collection($parkingLots)], 200);
         }
     }
