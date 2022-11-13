@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Database\Factories\PersonFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -30,5 +31,10 @@ class Person extends Model
     public function vehicles()
     {
         return $this->hasMany(Vehicle::class, 'person_id');
+    }
+
+    protected static function newFactory()
+    {
+        return PersonFactory::new();
     }
 }

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Database\Factories\ParkingLotFactory;
 
 class ParkingLot extends Model
 {
@@ -37,12 +38,12 @@ class ParkingLot extends Model
         return $this->hasMany(Cashier::class, 'parking_lot_id');
     }
 
-    public function parking_spots()
+    public function parkingSpots()
     {
         return $this->hasMany(ParkingSpot::class, 'parking_lot_id');
     }
 
-    public function vehicle_types()
+    public function vehicleTypes()
     {
         return $this->hasMany(VehicleType::class, 'parking_lot_id');
     }
@@ -72,5 +73,15 @@ class ParkingLot extends Model
         } catch (Exception $e) {
             return NULL;
         }
+    }
+
+        /**
+     * Create a new factory instance for the model.
+     *
+     * @return \Illuminate\Database\Eloquent\Factories\Factory
+     */
+    protected static function newFactory()
+    {
+        return ParkingLotFactory::new();
     }
 }

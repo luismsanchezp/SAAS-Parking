@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('vehicles', function (Blueprint $table) {
             $table->id();
             $table->string('license_plate', 10)->unique();
-            $table->string('color', 10);
+            $table->string('color');
             $table->foreignId('person_id');
             $table->foreignId('vehicle_type_id');
             $table->timestamps();

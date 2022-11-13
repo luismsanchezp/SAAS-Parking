@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Database\Factories\ParkingSpotFactory;
 
 class ParkingSpot extends Model
 {
@@ -41,4 +42,9 @@ class ParkingSpot extends Model
         }
     }
     */
+
+    protected static function newFactory()
+    {
+        return ParkingSpotFactory::new();
+    }
 }

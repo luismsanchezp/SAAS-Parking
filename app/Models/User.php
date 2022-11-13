@@ -8,6 +8,8 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
+use Database\Factories\UserFactory;
+
 use Exception;
 
 class User extends Authenticatable
@@ -44,7 +46,7 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    public function parking_lots()
+    public function parkingLots()
     {
         return $this->hasMany(ParkingLot::class, 'owner_id');
     }
@@ -70,5 +72,10 @@ class User extends Authenticatable
         } catch (Exception $e) {
             return NULL;
         }
+    }
+
+    protected static function newFactory()
+    {
+        return UserFactory::new();
     }
 }

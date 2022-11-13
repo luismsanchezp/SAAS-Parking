@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Database\Factories\VehicleFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -34,5 +35,10 @@ class Vehicle extends Model
     public function tickets()
     {
         return $this->hasMany(Ticket::class, 'vehicle_id');
+    }
+
+    protected static function newFactory()
+    {
+        return VehicleFactory::new();
     }
 }
