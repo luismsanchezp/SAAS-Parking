@@ -19,6 +19,8 @@ use App\Http\Resources\ParkingLotResource;
 
 use App\Enums\VehicleTypeEnum;
 
+use Illuminate\Support\Facades\DB;
+
 class ParkingLotController extends Controller
 {
     /**
@@ -26,27 +28,18 @@ class ParkingLotController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(ParkingLotIndexRequest $request)
-    {
-        if ($request->exists('name'))
-        {
-            $parkingLots = ParkingLot::findByName($request->input('name'));
-            return response()->json(['data' => ParkingLotResource::collection($parkingLots)], 200);
-        } else {
-            $parkingLots = ParkingLot::orderBy('id', 'asc')->get();
-            return response()->json(['data' => ParkingLotResource::collection($parkingLots)], 200);
-        }
-    }
-
-    public function indexByUser(User $user, ParkingLotIndexRequest $request){
+    public function index(User $user, ParkingLotIndexRequest $request){
         if ($request->exists('name'))
         {
             $name = $request->input('name');
-            $parkingLots = ParkingLot::findByNameOfUser($name, $user->id);
-            return response()->json(['data' => ParkingLotResource::collection($parkingLots)], 200);
+            $parkingLots = ParkingLot::findByParkingLotName($name, $user->id);
         } else {
             $parkingLots = ParkingLot::findByOwnerId($user->id);
+        }
+        if ($parkingLots != null) {
             return response()->json(['data' => ParkingLotResource::collection($parkingLots)], 200);
+        } else {
+            return response()->json(['data' => []], 200);
         }
     }
 
@@ -64,19 +57,31 @@ class ParkingLotController extends Controller
             $rows = $request->input('rows');
             $columns = $request->input('columns');
             $owner_id = $id;
-            $parkingLot = ParkingLot::create(['name'=>$name,
-                'rows'=>$rows, 'columns'=>$columns, 'owner_id'=>$owner_id]);
-            for($r = 1; $r <= $rows; $r++){
-                for($c = 1; $c <= $columns; $c++){
-                    ParkingSpot::create(['row'=>$r, 'column'=>$c,'parking_lot_id'=>$parkingLot->id]);
-                }
-            }
+            $parkingLot = ParkingLot::create([
+                'name'=>$name,
+                'rows'=>$rows,
+                'columns'=>$columns,
+                'owner_id'=>$owner_id
+            ]);
+            $this->createParkingSpots($parkingLot);
             return (new ParkingLotResource($parkingLot))
                 ->response()
                 ->setStatusCode(201);
         } else {
-            return response()->json(['data' => 'You cannot create parking lots to other users.'])
+            return response()->json(['message' => 'You cannot create Parking Lots to other users.'])
                 ->setStatusCode(403);
+        }
+    }
+
+    private function createParkingSpots(ParkingLot $parkingLot) {
+        for($r = 1; $r <= $parkingLot->rows; $r++){
+            for($c = 1; $c <= $parkingLot->columns; $c++){
+                ParkingSpot::create([
+                    'row'=>$r,
+                    'column'=>$c,
+                    'parking_lot_id'=>$parkingLot->id
+                ]);
+            }
         }
     }
 
@@ -89,33 +94,57 @@ class ParkingLotController extends Controller
     public function show(User $user, ParkingLot $parkingLot, Request $request)
     {
         if ($parkingLot->owner_id == $user->id){
-            if ($request->exists('statistics')){
-                $cars = 0;
-                $bikes = 0;
-                $free_spots = 0;
-                $spots = ParkingSpot::where('parking_lot_id', $parkingLot->id)->get();
-                foreach ($spots as $p) {
-                    $res = $this->getParkedVehicleType($p);
-                    if ($res != NULL){
-                        if ($res->type == "Car"){
-                            $cars++;
-                        } elseif ($res->type == "Motorbike") {
-                            $bikes++;
-                        }
-                    } else {
-                        $free_spots++;
-                    }
-                }
-                return response()->json(['data'=>['cars' => $cars, 'motorbikes' => $bikes, 'free_spots' => $free_spots]]
-                    , 200);
+            if ($request->exists('stats')){
+                return response()->json([
+                    'data' => $this->getParkingLotStatistics($parkingLot)
+                ], 200);
             } else {
                 return (new ParkingLotResource($parkingLot))
                     ->response()
                     ->setStatusCode(200);
             }
         } else {
-            return response()->json(['message'=>'This parking lot with ID '.$parkingLot->id.' does not belong to this user.'], 406);
+            return response()->json([
+                'message'=>'The parking lot id '.$parkingLot->id.' does not belong to the user id '.$user->id
+            ], 406);
         }
+    }
+
+    private function getParkingLotStatistics(ParkingLot $parkingLot) {
+        $cars = $this->countParkedVehiclesByType(VehicleTypeEnum::car->value, $parkingLot->id);
+        $motorbikes = $this->countParkedVehiclesByType(VehicleTypeEnum::motorbike->value, $parkingLot->id);
+        $free_spots = $this->countFreeParkingSpots($parkingLot->id);
+        return [
+            'parked_vehicles' => [
+                'cars' => $cars,
+                'motorbikes' => $motorbikes
+            ],
+            'free_spots' => $free_spots
+        ];
+    }
+
+    private function countFreeParkingSpots(int $parkingLotId) {
+        return DB::table('parking_spots')
+            ->leftJoin('tickets', 'tickets.parking_spot_id', '=', 'parking_spots.id')
+            ->where(function ($query) {
+                $query->select('remove_date')
+                    ->from('tickets')
+                    ->whereColumn('tickets.parking_spot_id', 'parking_spots.id')
+                    ->orderByDesc('entry_date')
+                    ->limit(1);
+            }, '!=', NULL)
+            ->orWhere('tickets.parking_spot_id', NULL)
+            ->where('parking_spots.parking_lot_id', '=', $parkingLotId)
+            ->count();
+    }
+
+    private function countParkedVehiclesByType(string $vehicle_type, int $parkingLotId) {
+        return DB::table('vehicles')
+            ->join('vehicle_types', 'vehicle_types.id', '=', 'vehicles.vehicle_type_id')
+            ->join('tickets', 'tickets.vehicle_id', '=', 'vehicles.id')
+            ->where('vehicle_types.parking_lot_id', '=', $parkingLotId)
+            ->where('vehicle_types.type', '=', $vehicle_type)
+            ->where('tickets.remove_date', '=', NULL)->count();
     }
 
     /**
@@ -127,9 +156,9 @@ class ParkingLotController extends Controller
      */
     public function update(ParkingLotUpdateRequest $request, User $user, ParkingLot $parkingLot)
     {
-        if ($user->id == $parkingLot->owner_id){
-            $id = Auth::user()->id;
-            if ($id == $parkingLot->owner_id){
+        $id = Auth::user()->id;
+        if ($id == $parkingLot->owner_id){
+            if ($user->id == $parkingLot->owner_id){
                 if ($request->exists('name')){
                     $name = $request->input('name');
                     $parkingLot->name = $name;
@@ -140,11 +169,13 @@ class ParkingLotController extends Controller
                     ->response()
                     ->setStatusCode(200);
             } else {
-                return response()->json(['data' => 'You do not own this parking lot.'])
-                    ->setStatusCode(403);
+                return response()->json([
+                    'message'=>'This parking lot with ID '.$parkingLot->id.' does not belong to this user.'
+                ], 406);
             }
         } else {
-            return response()->json(['message'=>'This parking lot with ID '.$parkingLot->id.' does not belong to this user.'], 406);
+            return response()->json(['message' => 'You do not own this parking lot.'])
+                ->setStatusCode(403);
         }
     }
 
@@ -156,20 +187,7 @@ class ParkingLotController extends Controller
      */
     public function destroy(ParkingLot $parkingLot)
     {
-        return response()->json(['data' => 'Delete method is not allowed.'])
+        return response()->json(['message' => 'Delete method is not allowed.'])
             ->setStatusCode(405);
-    }
-
-    public function getParkedVehicleType(ParkingSpot $parkingSpot){
-        $most_recent_ticket = Ticket::where('parking_spot_id', $parkingSpot->id)->orderBy('entry_date', 'desc')->limit(1)->get()->first();
-        $spot_tickets_count = Ticket::where('parking_spot_id', $parkingSpot->id)->get()->count();
-        if ($spot_tickets_count == 0){
-            return NULL;
-        } elseif ($most_recent_ticket->remove_date == NULL){
-            $vehicle_type_id = Vehicle::where('id', $most_recent_ticket->vehicle_id)->get()->first()->vehicle_type_id;
-            return VehicleType::where('id', $vehicle_type_id)->get()->first();
-        } else {
-            return NULL;
-        }
     }
 }

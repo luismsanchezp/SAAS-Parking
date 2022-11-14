@@ -9,6 +9,7 @@ use App\Models\Ticket;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Resources\ParkingSpotResource;
+use Illuminate\Support\Facades\DB;
 
 class ParkingSpotController extends Controller
 {
@@ -23,23 +24,34 @@ class ParkingSpotController extends Controller
         if ($parkingLot->owner_id == $user_id){
             if ($request->exists('free_spots')){
                 if ($request->input('free_spots')){
-                    $freeParkingSpots = collect([]);
-                    $spots = ParkingSpot::where('parking_lot_id', $parkingLot->id)->get();
-                    foreach ($spots as $p) {
-                        $res = $this->getFreeParkingSpot($p);
-                        if ($res != NULL){
-                            $freeParkingSpots->push($res);
-                        }
-                    }
-                    return response()->json(['data' => ParkingSpotResource::collection($freeParkingSpots)], 200);
+                    $parkingSpots = $this->getFreeParkingSpots($parkingLot->id);
                 }
+            } else {
+                $parkingSpots = ParkingSpot::where('parking_lot_id', $parkingLot->id)->get();
             }
-            $parkingSpots = ParkingSpot::where('parking_lot_id', $parkingLot->id)->get();
-            return response()->json(['data' => ParkingSpotResource::collection($parkingSpots)], 200);
+            return response()->json([
+                'data' => ParkingSpotResource::collection($parkingSpots)
+            ], 200);
         } else {
             return response()->json(['data' => 'You do not own this parking lot.'])
                 ->setStatusCode(403);
         }
+    }
+
+    private function getFreeParkingSpots(int $parkingLotId){
+        return DB::table('parking_spots')
+            ->select('parking_spots.*')
+            ->leftJoin('tickets', 'tickets.parking_spot_id', '=', 'parking_spots.id')
+            ->where(function ($query) {
+                $query->select('remove_date')
+                    ->from('tickets')
+                    ->whereColumn('tickets.parking_spot_id', 'parking_spots.id')
+                    ->orderByDesc('entry_date')
+                    ->limit(1);
+            }, '!=', NULL)
+            ->orWhere('tickets.parking_spot_id', NULL)
+            ->where('parking_spots.parking_lot_id', '=', $parkingLotId)
+            ->get();
     }
 
     /**
@@ -69,7 +81,9 @@ class ParkingSpotController extends Controller
                     ->response()
                     ->setStatusCode(200);
             } else {
-                return response()->json(['message'=>'This parking lot with ID '.$parkingLot->id.' does not belong to this parking spot.'], 406);
+                return response()->json([
+                    'message'=>'This parking lot with ID '.$parkingLot->id.' does not belong to this parking spot.'
+                ], 406);
             }
         } else {
             return response()->json(['message'=>'You do not own this parking lot.'], 403);
@@ -99,17 +113,5 @@ class ParkingSpotController extends Controller
     {
         return response()->json(['data' => 'Delete method is not allowed.'])
             ->setStatusCode(405);
-    }
-
-    public function getFreeParkingSpot(ParkingSpot $parkingSpot){
-        $most_recent_ticket = Ticket::where('parking_spot_id', $parkingSpot->id)->orderBy('entry_date', 'desc')->limit(1)->get()->first();
-        $spot_tickets_count = Ticket::where('parking_spot_id', $parkingSpot->id)->get()->count();
-        if ($spot_tickets_count == 0){
-            return $parkingSpot;
-        } elseif ($most_recent_ticket->remove_date != NULL){
-            return $parkingSpot;
-        } else {
-            return NULL;
-        }
     }
 }

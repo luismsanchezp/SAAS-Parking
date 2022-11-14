@@ -24,8 +24,8 @@ class DatabaseSeeder extends Seeder
         \App\Models\User::factory(1)
             ->has(ParkingLot::factory(1)
                 ->has(ParkingSpot::factory(4), 'parkingSpots')
-                ->has(Person::factory()
-                    ->has(Vehicle::factory(), 'vehicles'), 'persons')
+                ->has(Person::factory(1)
+                    ->has(Vehicle::factory(1), 'vehicles'), 'persons')
                 ->has(VehicleType::factory(1), 'vehicleTypes'), 'parkingLots')
             ->create([
             'username' => 'admin',
@@ -35,8 +35,8 @@ class DatabaseSeeder extends Seeder
         \App\Models\User::factory(2)
             ->has(ParkingLot::factory(1)
                 ->has(ParkingSpot::factory(4), 'parkingSpots')
-                ->has(Person::factory()
-                    ->has(Vehicle::factory(), 'vehicles'), 'persons')
+                ->has(Person::factory(1)
+                    ->has(Vehicle::factory(1), 'vehicles'), 'persons')
                 ->has(VehicleType::factory(1), 'vehicleTypes'), 'parkingLots')
             ->create();
     }

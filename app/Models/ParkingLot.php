@@ -33,11 +33,6 @@ class ParkingLot extends Model
         return $this->belongsTo(User::class, 'owner_id');
     }
 
-    public function cashiers()
-    {
-        return $this->hasMany(Cashier::class, 'parking_lot_id');
-    }
-
     public function parkingSpots()
     {
         return $this->hasMany(ParkingSpot::class, 'parking_lot_id');
@@ -46,15 +41,6 @@ class ParkingLot extends Model
     public function vehicleTypes()
     {
         return $this->hasMany(VehicleType::class, 'parking_lot_id');
-    }
-
-    public static function findByName(string $name)
-    {
-        try {
-            return ParkingLot::where('name', 'LIKE', "%{$name}%")->take(5)->get();
-        } catch (Exception $e) {
-            return NULL;
-        }
     }
 
     public static function findByOwnerId(string $owner_id)
@@ -66,7 +52,7 @@ class ParkingLot extends Model
         }
     }
 
-    public static function findByNameOfUser(string $name, int $owner_id)
+    public static function findByParkingLotName(string $name, int $owner_id)
     {
         try {
             return ParkingLot::where('name', 'LIKE', "%{$name}%")->where('owner_id', $owner_id)->get();

@@ -24,32 +24,29 @@ class PersonController extends Controller
         if ($parkingLot->owner_id == $user_id){
             if ($request->exists('govid'))
             {
-                $person = Person::where('gov_id', $request->input('govid'))->get()->first();
-                if ($person != NULL) {
-                    if ($person->parking_lot_id == $parkingLot->id){
-                        return (new PersonResource($person))
-                            ->response()
-                            ->setStatusCode(200);
-                    } else {
-                        return response()->json([
-                            'data' => 'Customer not found.'
-                        ])
-                            ->setStatusCode(404);
-                    }
-
-                } else {
-                    return response()->json([
-                        'data' => 'Customer not found.'
-                    ])
-                        ->setStatusCode(404);
-                }
+                return $this->findByGovId($parkingLot->id, $request->input('govid'));
             } else {
                 $people = Person::where('parking_lot_id', $parkingLot->id)->get();
-                return response()->json(['data' => PersonResource::collection($people)], 200);
+                return response()->json([
+                    'data' => PersonResource::collection($people)
+                ], 200);
             }
         } else {
             return response()->json(['data' => 'You do not own this parking lot.'])
                 ->setStatusCode(403);
+        }
+    }
+
+    private function findByGovId(int $parkingLotId, string $gov_id){
+        $person = Person::where('gov_id', $gov_id)->get()->first();
+        if ($person != NULL) {
+            return response()->json(['data' => 'Customer not found.'])->setStatusCode(404);
+        } else if ($person->parking_lot_id != $parkingLotId) {
+            return response()->json(['data' => 'Customer not found.'])->setStatusCode(404);
+        } else {
+            return (new PersonResource($person))
+                ->response()
+                ->setStatusCode(200);
         }
     }
 
@@ -68,15 +65,21 @@ class PersonController extends Controller
             $id_type = $request->input('id_type');
             $gov_id = $request->input('gov_id');
             $phone_number = $request->input('phone_number');
-            $person = Person::create(['name'=>$name,
-                'surname'=>$surname, 'id_type'=>$id_type, 'gov_id'=>$gov_id,
-                'phone_number'=>$phone_number, 'parking_lot_id'=>$parkingLot->id]);
+            $person = Person::create([
+                'name'=>$name,
+                'surname'=>$surname,
+                'id_type'=>$id_type,
+                'gov_id'=>$gov_id,
+                'phone_number'=>$phone_number,
+                'parking_lot_id'=>$parkingLot->id
+            ]);
             return (new PersonResource($person))
                 ->response()
                 ->setStatusCode(201);
         } else {
-            return response()->json(['data' => 'You cannot create customers to parking lots that do not belong to you.'])
-                ->setStatusCode(403);
+            return response()->json([
+                'data' => 'You cannot create customers to parking lots that do not belong to you.'
+            ])->setStatusCode(403);
         }
     }
 
@@ -95,7 +98,9 @@ class PersonController extends Controller
                     ->response()
                     ->setStatusCode(200);
             } else {
-                return response()->json(['message'=>'This parking lot with ID '.$parkingLot->id.' does not belong to person.'], 406);
+                return response()->json([
+                    'message'=>'This parking lot with ID '.$parkingLot->id.' does not belong to person.'
+                ], 406);
             }
         } else {
             return response()->json(['message'=>'You do not own this parking lot.'], 403);

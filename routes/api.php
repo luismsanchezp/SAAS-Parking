@@ -23,10 +23,8 @@ Route::post('v1/users',
     [App\Http\Controllers\api\v1\UserController::class,'store'])->name('users.store');
 
 //ParkingLot routes
-Route::get('v1/parkinglots',
-    [App\Http\Controllers\api\v1\ParkingLotController::class,'index'])->name('parkinglots.index');
 Route::get('v1/users/{user}/parkinglots',
-    [App\Http\Controllers\api\v1\ParkingLotController::class,'indexByUser'])->name('parkinglots.indexByUser');
+    [App\Http\Controllers\api\v1\ParkingLotController::class,'index'])->name('parkinglots.index');
 Route::get('v1/users/{user}/parkinglots/{parkingLot}',
     [App\Http\Controllers\api\v1\ParkingLotController::class,'show'])->name('parkinglots.show');
 

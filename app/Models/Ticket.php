@@ -30,9 +30,4 @@ class Ticket extends Model
     {
         return $this->belongsTo(Vehicle::class, 'vehicle_id');
     }
-
-    public function cashier()
-    {
-        return $this->belongsTo(Cashier::class, 'cashier_id');
-    }
 }

@@ -51,11 +51,6 @@ class User extends Authenticatable
         return $this->hasMany(ParkingLot::class, 'owner_id');
     }
 
-    public function cashiers()
-    {
-        return $this->hasMany(Cashier::class, 'user_id');
-    }
-
     public static function findByUsername(string $username)
     {
         try {

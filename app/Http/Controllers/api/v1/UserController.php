@@ -31,12 +31,6 @@ class UserController extends Controller
             return (new UserResource($user))
                 ->response()
                 ->setStatusCode(200);
-        } elseif ($request->exists('email')){
-            $email = $request->input('email');
-            $user = User::findByEmail($email);
-            return (new UserResource($user))
-                ->response()
-                ->setStatusCode(200);
         } else {
             $users = User::orderBy('username', 'asc')->get();
             return response()->json(['data' => UserResource::collection($users)], 200);
@@ -52,10 +46,14 @@ class UserController extends Controller
     public function store(UserStoreRequest $request)
     {
         $username = Str::lower($request->input('username'));
-        $email = $request->input('email');
+        $email = Str::lower($request->input('email'));
         $password = $request->input('password');
         $password = Hash::make($password);
-        $user = User::create(['username'=>$username, 'email'=>$email, 'password'=>$password]);
+        $user = User::create([
+            'username'=>$username,
+            'email'=>$email,
+            'password'=>$password
+        ]);
         return (new UserResource($user))
             ->response()
             ->setStatusCode(201);
@@ -89,7 +87,7 @@ class UserController extends Controller
             $user->username = $username;
         }
         if ($request->exists('email')){
-            $email = $request->input('email');
+            $email = Str::lower($request->input('email'));
             $user->email = $email;
         }
         if ($request->exists('password')){
@@ -112,7 +110,8 @@ class UserController extends Controller
      */
     public function destroy(User $user)
     {
-        //
+        return response()->json(['message' => 'Delete method is not allowed.'])
+            ->setStatusCode(405);
     }
 
     public function get_id_with_token(Request $request)
