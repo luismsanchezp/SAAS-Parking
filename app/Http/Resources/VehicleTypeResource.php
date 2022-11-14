@@ -19,7 +19,7 @@ class VehicleTypeResource extends JsonResource
             'type' => $this->type,
             'tariff' => $this->tariff,
             'creation_date' => $this->creation_date,
-            'parking_lot_id' => $this->parking_lot_id,
+            'parking_lot' => new ParkingLotResource($this->whenLoaded('parking_lot')),
         ];
     }
 }

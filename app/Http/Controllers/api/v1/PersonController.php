@@ -48,7 +48,9 @@ class PersonController extends Controller
                 'error' => 'Customer does not belong to this parking lot.'
             ])->setStatusCode(404);
         } else {
-            return (new PersonResource($person))
+            return (new PersonResource($person
+                ->loadMissing('parking_lot')
+                ->loadMissing('vehicles')))
                 ->response()
                 ->setStatusCode(200);
         }
@@ -77,7 +79,8 @@ class PersonController extends Controller
                 'phone_number'=>$phone_number,
                 'parking_lot_id'=>$parkingLot->id
             ]);
-            return (new PersonResource($person))
+            return (new PersonResource($person
+                ->loadMissing('parking_lot')))
                 ->response()
                 ->setStatusCode(201);
         } else {
@@ -98,7 +101,9 @@ class PersonController extends Controller
         $user_id = Auth::user()->id;
         if ($parkingLot->owner_id == $user_id){
             if ($person->parking_lot_id == $parkingLot->id){
-                return (new PersonResource($person))
+                return (new PersonResource($person
+                    ->loadMissing('parking_lot')
+                    ->loadMissing('vehicles')))
                     ->response()
                     ->setStatusCode(200);
             } else {

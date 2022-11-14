@@ -34,7 +34,9 @@ class ParkingLotController extends Controller
             $parkingLots = ParkingLot::findByOwnerId($user->id);
         }
         if ($parkingLots != null) {
-            return response()->json(['data' => ParkingLotResource::collection($parkingLots)], 200);
+            return response()->json([
+                'data' => ParkingLotResource::collection($parkingLots)
+            ], 200);
         } else {
             return response()->json(['data' => []], 200);
         }
@@ -96,7 +98,9 @@ class ParkingLotController extends Controller
                     'data' => $this->getParkingLotStatistics($parkingLot)
                 ], 200);
             } else {
-                return (new ParkingLotResource($parkingLot))
+                return (new ParkingLotResource($parkingLot
+                    ->loadMissing('user')
+                    ->loadMissing('persons')))
                     ->response()
                     ->setStatusCode(200);
             }

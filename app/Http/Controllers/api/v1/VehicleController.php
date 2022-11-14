@@ -26,7 +26,9 @@ class VehicleController extends Controller
         $parkingLot = $person->parking_lot;
         if ($parkingLot->owner_id == $id){
             $vehicles = Vehicle::where('person_id', $person->id)->get();
-            return response()->json(['data' => VehicleResource::collection($vehicles)], 200);
+            return response()->json(['data' => VehicleResource::collection($vehicles
+                ->loadMissing('vehicle_type'))
+            ], 200);
         } else {
             return response()->json(['error' => 'This person does not belong to your parking lots.'])
                 ->setStatusCode(403);
@@ -40,7 +42,10 @@ class VehicleController extends Controller
             $vehicle = Vehicle::where('license_plate', $license_plate)->get()->first();
             if ($vehicle != NULL) {
                 if ($vehicle->person->parking_lot_id == $parkingLot->id) {
-                    return (new VehicleResource($vehicle))
+                    return (new VehicleResource($vehicle
+                        ->loadMissing('person')
+                        ->loadMissing('vehicle_type')
+                        ->loadMissing('tickets')))
                         ->response()
                         ->setStatusCode(200);
                 } else {
@@ -81,7 +86,9 @@ class VehicleController extends Controller
                     'person_id'=>$person_id,
                     'vehicle_type_id'=>$vehicle_type_id
                 ]);
-                return (new VehicleResource($vehicle))
+                return (new VehicleResource($vehicle
+                    ->loadMissing('person')
+                    ->loadMissing('vehicle_type')))
                     ->response()
                     ->setStatusCode(201);
             } else {
@@ -108,7 +115,10 @@ class VehicleController extends Controller
         $parkingLot = $person->parking_lot;
         if ($parkingLot->owner_id == $id){
             if($vehicle->person_id == $person->id){
-                return (new VehicleResource($vehicle))
+                return (new VehicleResource($vehicle
+                    ->loadMissing('person')
+                    ->loadMissing('vehicle_type')
+                    ->loadMissing('tickets')))
                     ->response()
                     ->setStatusCode(200);
             } else {

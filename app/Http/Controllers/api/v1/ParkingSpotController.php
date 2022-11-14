@@ -76,7 +76,9 @@ class ParkingSpotController extends Controller
         $user_id = Auth::user()->id;
         if ($parkingLot->owner_id == $user_id){
             if ($parkingSpot->parking_lot_id == $parkingLot->id){
-                return (new ParkingSpotResource($parkingSpot))
+                return (new ParkingSpotResource($parkingSpot
+                    ->loadMissing('parking_lot')
+                    ->loadMissing('tickets')))
                     ->response()
                     ->setStatusCode(200);
             } else {

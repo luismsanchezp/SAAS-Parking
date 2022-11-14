@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Auth;
 
 class ParkingLotResource extends JsonResource
 {
@@ -19,7 +20,8 @@ class ParkingLotResource extends JsonResource
             'name' => $this->name,
             'rows' => $this->rows,
             'columns' => $this->columns,
-            'owner_id' => $this->owner_id,
+            'owner' => new UserResource($this->whenLoaded('user')),
+            'customers' => PersonResource::collection($this->whenLoaded('persons')),
         ];
     }
 }

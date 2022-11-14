@@ -28,12 +28,16 @@ class UserController extends Controller
         {
             $username = $request->input('username');
             $user = User::findByUsername($username);
-            return (new UserResource($user))
-                ->response()
-                ->setStatusCode(200);
+            return (new UserResource($user
+                    ->loadMissing('parkingLots')
+                )
+            )->response()->setStatusCode(200);
         } else {
             $users = User::orderBy('username', 'asc')->get();
-            return response()->json(['data' => UserResource::collection($users)], 200);
+            return response()->json([
+                'data' => UserResource::collection($users
+                    ->loadMissing('parkingLots'))
+            ], 200);
         }
     }
 
@@ -67,9 +71,10 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
-        return (new UserResource($user))
-            ->response()
-            ->setStatusCode(200);
+        return (new UserResource($user
+                ->loadMissing('parkingLots')
+            )
+        )->response()->setStatusCode(200);
     }
 
     /**

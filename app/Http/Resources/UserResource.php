@@ -18,7 +18,7 @@ class UserResource extends JsonResource
             'id' =>$this->id,
             'username' => $this->username,
             'email' => $this->email,
-            'parking_lots' => ParkingLotResource::collection($this->parkingLots),
+            'parking_lots' => ParkingLotResource::collection($this->whenLoaded('parkingLots')),
         ];
     }
 }

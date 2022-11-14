@@ -21,8 +21,8 @@ class PersonResource extends JsonResource
             'id_type' => $this->id_type,
             'gov_id' => $this->gov_id,
             'phone_number' => $this->phone_number,
-            'parking_lot_id' => $this->parking_lot_id,
-            'vehicles' => VehicleResource::collection($this->vehicles),
+            'parking_lot' => new ParkingLotResource($this->whenLoaded('parking_lot')),
+            'vehicles' => VehicleResource::collection($this->whenLoaded('vehicles')),
         ];
     }
 }

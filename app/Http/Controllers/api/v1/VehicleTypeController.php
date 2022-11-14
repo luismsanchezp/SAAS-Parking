@@ -26,14 +26,16 @@ class VehicleTypeController extends Controller
             $car = VehicleType::getCurrentTariffByType(VehicleTypeEnum::car->value);
             $motorbike = VehicleType::getCurrentTariffByType(VehicleTypeEnum::motorbike->value);
             return response()->json([
-                'data' => VehicleTypeResource::collection([
+                'data' => [
                     'car' => $car,
                     'motorbike' => $motorbike
-                ])
+                ]
             ], 200);
         } else {
             $vehicleTypes = VehicleType::where('parking_lot_id', $parkingLot->id)->get();
-            return response()->json(['data' => VehicleTypeResource::collection($vehicleTypes)], 200);
+            return response()->json([
+                'data' => VehicleTypeResource::collection($vehicleTypes)
+            ], 200);
         }
     }
 
@@ -56,7 +58,7 @@ class VehicleTypeController extends Controller
                 'creation_date' => $creation_date,
                 'parking_lot_id' => $parkingLot->id
             ]);
-            return (new VehicleTypeResource($vehicleType))
+            return (new VehicleTypeResource($vehicleType->loadMissing('parking_lot')))
                 ->response()
                 ->setStatusCode(201);
         } else {
@@ -76,7 +78,7 @@ class VehicleTypeController extends Controller
     {
 
         if ($vehicleType->parking_lot_id == $parkingLot->id){
-            return (new VehicleTypeResource($vehicleType))
+            return (new VehicleTypeResource($vehicleType->loadMissing('parking_lot')))
                 ->response()
                 ->setStatusCode(200);
         } else {

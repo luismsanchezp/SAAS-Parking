@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\ParkingLot;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class ParkingSpotResource extends JsonResource
@@ -18,7 +19,8 @@ class ParkingSpotResource extends JsonResource
             'id' => $this->id,
             'row' => $this->row,
             'column' => $this->column,
-            'parking_lot_id' => $this->parking_lot_id,
+            'parking_lot' => new ParkingLotResource($this->whenLoaded('parking_lot')),
+            'tickets' => TicketResource::collection($this->whenLoaded('tickets'))
         ];
     }
 }

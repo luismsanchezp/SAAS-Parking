@@ -15,13 +15,12 @@ class VehicleResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'id' =>$this->id,
+            'id' => $this->id,
             'license_plate' => $this->license_plate,
             'color' => $this->color,
-            'person_id' => $this->person_id,
-            'vehicle_type_id' => $this->vehicle_type_id,
-            'tickets_num' => TicketResource::collection($this->tickets)->count(),
-            'tickets' => TicketResource::collection($this->tickets)->sortByDesc('entry_date'),
+            'person' => new PersonResource($this->whenLoaded('person')),
+            'vehicle_type' => new VehicleTypeResource($this->whenLoaded('vehicle_type')),
+            'tickets' => TicketResource::collection($this->whenLoaded('tickets')),
         ];
     }
 }
