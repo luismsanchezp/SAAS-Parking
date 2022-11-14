@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\api\v1;
 
+use App\Enums\VehicleTypeEnum;
 use App\Http\Controllers\Controller;
 use App\Models\ParkingLot;
 use App\Models\VehicleType;
@@ -19,10 +20,21 @@ class VehicleTypeController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(ParkingLot $parkingLot)
+    public function index(ParkingLot $parkingLot, Request $request)
     {
-        $vehicleTypes = VehicleType::where('parking_lot_id', $parkingLot->id)->get();
-        return response()->json(['data' => VehicleTypeResource::collection($vehicleTypes)], 200);
+        if ($request->exists('current')) {
+            $car = VehicleType::getCurrentTariffByType(VehicleTypeEnum::car->value);
+            $motorbike = VehicleType::getCurrentTariffByType(VehicleTypeEnum::motorbike->value);
+            return response()->json([
+                'data' => VehicleTypeResource::collection([
+                    'car' => $car,
+                    'motorbike' => $motorbike
+                ])
+            ], 200);
+        } else {
+            $vehicleTypes = VehicleType::where('parking_lot_id', $parkingLot->id)->get();
+            return response()->json(['data' => VehicleTypeResource::collection($vehicleTypes)], 200);
+        }
     }
 
     /**
@@ -38,15 +50,19 @@ class VehicleTypeController extends Controller
             $type = $request->input('type');
             $tariff = $request->input('tariff');
             $creation_date = Carbon::now()->toDateTimeString();
-            $vehicleType = VehicleType::create(['type'=>$type,
-                'tariff'=>$tariff, 'creation_date'=>$creation_date,
-                'parking_lot_id'=>$parkingLot->id]);
+            $vehicleType = VehicleType::create([
+                'type' => $type,
+                'tariff' => $tariff,
+                'creation_date' => $creation_date,
+                'parking_lot_id' => $parkingLot->id
+            ]);
             return (new VehicleTypeResource($vehicleType))
                 ->response()
                 ->setStatusCode(201);
         } else {
-            return response()->json(['data' => 'You cannot create vehicle types to parking lots that do not belong to you.'])
-                ->setStatusCode(403);
+            return response()->json([
+                'data' => 'You cannot create vehicle types to parking lots that do not belong to you.'
+            ])->setStatusCode(403);
         }
     }
 
@@ -64,7 +80,9 @@ class VehicleTypeController extends Controller
                 ->response()
                 ->setStatusCode(200);
         } else {
-            return response()->json(['message'=>'This parking lot with ID '.$parkingLot->id.' does not belong to vehicle type.'], 406);
+            return response()->json([
+                'message'=>'This parking lot with ID '.$parkingLot->id.' does not belong to that vehicle type.'
+            ], 406);
         }
     }
 
@@ -77,7 +95,8 @@ class VehicleTypeController extends Controller
      */
     public function update(Request $request, VehicleType $vehicleType)
     {
-        //
+        return response()->json(['data' => 'Update method is not allowed.'])
+            ->setStatusCode(405);
     }
 
     /**
@@ -88,6 +107,7 @@ class VehicleTypeController extends Controller
      */
     public function destroy(VehicleType $vehicleType)
     {
-        //
+        return response()->json(['data' => 'Delete method is not allowed.'])
+            ->setStatusCode(405);
     }
 }

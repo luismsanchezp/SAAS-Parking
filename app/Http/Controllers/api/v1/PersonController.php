@@ -39,10 +39,12 @@ class PersonController extends Controller
 
     private function findByGovId(int $parkingLotId, string $gov_id){
         $person = Person::where('gov_id', $gov_id)->get()->first();
-        if ($person != NULL) {
+        if ($person == NULL) {
             return response()->json(['data' => 'Customer not found.'])->setStatusCode(404);
         } else if ($person->parking_lot_id != $parkingLotId) {
-            return response()->json(['data' => 'Customer not found.'])->setStatusCode(404);
+            return response()->json([
+                'data' => 'Customer does not belong to this parking lot.'
+            ])->setStatusCode(404);
         } else {
             return (new PersonResource($person))
                 ->response()
