@@ -5,10 +5,7 @@ namespace App\Http\Controllers\api\v1;
 use App\Http\Controllers\Controller;
 use App\Models\ParkingLot;
 use App\Models\ParkingSpot;
-use App\Models\Ticket;
 use App\Models\User;
-use App\Models\Vehicle;
-use App\Models\VehicleType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
