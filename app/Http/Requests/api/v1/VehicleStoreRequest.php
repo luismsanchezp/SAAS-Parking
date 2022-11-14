@@ -2,9 +2,11 @@
 
 namespace App\Http\Requests\api\v1;
 
+use App\Enums\VehicleTypeEnum;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Validation\Rules\Enum;
 
 class VehicleStoreRequest extends FormRequest
 {
@@ -28,7 +30,7 @@ class VehicleStoreRequest extends FormRequest
         return [
             "license_plate" => "required|string|min:6|max:10|alpha_num|unique:vehicles,license_plate",
             "color" => "required|string|min:3|max:256|alpha",
-            "vehicle_type_id" => "required|numeric|integer|exists:vehicle_types,id"
+            "vehicle_type" => ["required","string","min:3","max:9",new Enum(VehicleTypeEnum::class)],
         ];
     }
 
