@@ -65,7 +65,7 @@ class ParkingLotController extends Controller
                 ->response()
                 ->setStatusCode(201);
         } else {
-            return response()->json(['message' => 'You cannot create Parking Lots to other users.'])
+            return response()->json(['error' => 'You cannot create Parking Lots to other users.'])
                 ->setStatusCode(403);
         }
     }
@@ -102,7 +102,7 @@ class ParkingLotController extends Controller
             }
         } else {
             return response()->json([
-                'message'=>'The parking lot id '.$parkingLot->id.' does not belong to the user id '.$user->id
+                'error'=>'The parking lot id '.$parkingLot->id.' does not belong to the user id '.$user->id
             ], 406);
         }
     }
@@ -167,11 +167,11 @@ class ParkingLotController extends Controller
                     ->setStatusCode(200);
             } else {
                 return response()->json([
-                    'message'=>'This parking lot with ID '.$parkingLot->id.' does not belong to this user.'
+                    'error'=>'This parking lot with ID '.$parkingLot->id.' does not belong to this user.'
                 ], 406);
             }
         } else {
-            return response()->json(['message' => 'You do not own this parking lot.'])
+            return response()->json(['error' => 'You do not own this parking lot.'])
                 ->setStatusCode(403);
         }
     }
@@ -184,7 +184,7 @@ class ParkingLotController extends Controller
      */
     public function destroy(ParkingLot $parkingLot)
     {
-        return response()->json(['message' => 'Delete method is not allowed.'])
+        return response()->json(['error' => 'Delete method is not allowed.'])
             ->setStatusCode(405);
     }
 }

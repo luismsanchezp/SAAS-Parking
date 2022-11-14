@@ -44,8 +44,6 @@ Route::middleware(['auth:sanctum'])->group(function() {
             'logout'])->name('api.logout');
 
     //User routes
-    Route::get('v1/token',
-        [App\Http\Controllers\api\v1\UserController::class,'get_id_with_token'])->name('users.token');
     Route::put('v1/users/{user}',
         [App\Http\Controllers\api\v1\UserController::class,'update'])->name('users.update');
 

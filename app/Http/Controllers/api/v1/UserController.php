@@ -110,16 +110,7 @@ class UserController extends Controller
      */
     public function destroy(User $user)
     {
-        return response()->json(['message' => 'Delete method is not allowed.'])
+        return response()->json(['error' => 'Delete method is not allowed.'])
             ->setStatusCode(405);
-    }
-
-    public function get_id_with_token(Request $request)
-    {
-        $id = Auth::user()->id;
-        return response()->json(['data' => [
-            'id' => $id
-        ]])
-            ->setStatusCode(200);
     }
 }

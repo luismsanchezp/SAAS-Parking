@@ -131,7 +131,7 @@ class VehicleController extends Controller
      */
     public function update(Request $request, Vehicle $vehicle)
     {
-        return response()->json(['data' => 'Update method is not allowed.'])
+        return response()->json(['error' => 'Update method is not allowed.'])
             ->setStatusCode(405);
     }
 
@@ -143,7 +143,7 @@ class VehicleController extends Controller
      */
     public function destroy(Vehicle $vehicle)
     {
-        return response()->json(['data' => 'Delete method is not allowed.'])
+        return response()->json(['error' => 'Delete method is not allowed.'])
             ->setStatusCode(405);
     }
 }

@@ -32,7 +32,7 @@ class ParkingSpotController extends Controller
                 'data' => ParkingSpotResource::collection($parkingSpots)
             ], 200);
         } else {
-            return response()->json(['data' => 'You do not own this parking lot.'])
+            return response()->json(['error' => 'You do not own this parking lot.'])
                 ->setStatusCode(403);
         }
     }
@@ -61,7 +61,7 @@ class ParkingSpotController extends Controller
      */
     public function store(Request $request)
     {
-        return response()->json(['data' => 'Store method is not allowed.'])
+        return response()->json(['error' => 'Store method is not allowed.'])
             ->setStatusCode(405);
     }
 
@@ -81,11 +81,11 @@ class ParkingSpotController extends Controller
                     ->setStatusCode(200);
             } else {
                 return response()->json([
-                    'message'=>'This parking lot with ID '.$parkingLot->id.' does not belong to this parking spot.'
+                    'error'=>'This parking lot with ID '.$parkingLot->id.' does not belong to this parking spot.'
                 ], 406);
             }
         } else {
-            return response()->json(['message'=>'You do not own this parking lot.'], 403);
+            return response()->json(['error'=>'You do not own this parking lot.'], 403);
         }
     }
 
@@ -98,7 +98,7 @@ class ParkingSpotController extends Controller
      */
     public function update(Request $request, ParkingSpot $parkingSpot)
     {
-        return response()->json(['data' => 'Update method is not allowed.'])
+        return response()->json(['error' => 'Update method is not allowed.'])
             ->setStatusCode(405);
     }
 
@@ -110,7 +110,7 @@ class ParkingSpotController extends Controller
      */
     public function destroy(ParkingSpot $parkingSpot)
     {
-        return response()->json(['data' => 'Delete method is not allowed.'])
+        return response()->json(['error' => 'Delete method is not allowed.'])
             ->setStatusCode(405);
     }
 }

@@ -32,7 +32,7 @@ class PersonController extends Controller
                 ], 200);
             }
         } else {
-            return response()->json(['data' => 'You do not own this parking lot.'])
+            return response()->json(['error' => 'You do not own this parking lot.'])
                 ->setStatusCode(403);
         }
     }
@@ -40,10 +40,12 @@ class PersonController extends Controller
     private function findByGovId(int $parkingLotId, string $gov_id){
         $person = Person::where('gov_id', $gov_id)->get()->first();
         if ($person == NULL) {
-            return response()->json(['data' => 'Customer not found.'])->setStatusCode(404);
+            return response()->json(
+                ['error' => 'Customer not found.']
+            )->setStatusCode(404);
         } else if ($person->parking_lot_id != $parkingLotId) {
             return response()->json([
-                'data' => 'Customer does not belong to this parking lot.'
+                'error' => 'Customer does not belong to this parking lot.'
             ])->setStatusCode(404);
         } else {
             return (new PersonResource($person))
@@ -80,7 +82,7 @@ class PersonController extends Controller
                 ->setStatusCode(201);
         } else {
             return response()->json([
-                'data' => 'You cannot create customers to parking lots that do not belong to you.'
+                'error' => 'You cannot create customers to parking lots that do not belong to you.'
             ])->setStatusCode(403);
         }
     }
@@ -101,11 +103,11 @@ class PersonController extends Controller
                     ->setStatusCode(200);
             } else {
                 return response()->json([
-                    'message'=>'This parking lot with ID '.$parkingLot->id.' does not belong to person.'
+                    'error' => 'This parking lot with ID '.$parkingLot->id.' does not belong to that person.'
                 ], 406);
             }
         } else {
-            return response()->json(['message'=>'You do not own this parking lot.'], 403);
+            return response()->json(['error' => 'You do not own this parking lot.'], 403);
         }
     }
 
@@ -118,7 +120,7 @@ class PersonController extends Controller
      */
     public function update(Request $request, Person $person)
     {
-        return response()->json(['data' => 'Update method is not allowed.'])
+        return response()->json(['error' => 'Update method is not allowed.'])
             ->setStatusCode(405);
     }
 
@@ -130,7 +132,7 @@ class PersonController extends Controller
      */
     public function destroy(Person $person)
     {
-        return response()->json(['data' => 'Delete method is not allowed.'])
+        return response()->json(['error' => 'Delete method is not allowed.'])
             ->setStatusCode(405);
     }
 }

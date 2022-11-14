@@ -61,7 +61,7 @@ class VehicleTypeController extends Controller
                 ->setStatusCode(201);
         } else {
             return response()->json([
-                'data' => 'You cannot create vehicle types to parking lots that do not belong to you.'
+                'error' => 'You cannot create vehicle types to parking lots that do not belong to you.'
             ])->setStatusCode(403);
         }
     }
@@ -81,7 +81,7 @@ class VehicleTypeController extends Controller
                 ->setStatusCode(200);
         } else {
             return response()->json([
-                'message'=>'This parking lot with ID '.$parkingLot->id.' does not belong to that vehicle type.'
+                'error'=>'This parking lot with ID '.$parkingLot->id.' does not belong to that vehicle type.'
             ], 406);
         }
     }
@@ -95,7 +95,7 @@ class VehicleTypeController extends Controller
      */
     public function update(Request $request, VehicleType $vehicleType)
     {
-        return response()->json(['data' => 'Update method is not allowed.'])
+        return response()->json(['error' => 'Update method is not allowed.'])
             ->setStatusCode(405);
     }
 
@@ -107,7 +107,7 @@ class VehicleTypeController extends Controller
      */
     public function destroy(VehicleType $vehicleType)
     {
-        return response()->json(['data' => 'Delete method is not allowed.'])
+        return response()->json(['error' => 'Delete method is not allowed.'])
             ->setStatusCode(405);
     }
 }
