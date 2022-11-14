@@ -32,17 +32,6 @@ class ParkingSpot extends Model
         return $this->hasMany(Ticket::class, 'parking_spot_id');
     }
 
-    /*
-    public static function getUserParkingSpots($user_id){
-        return ParkingSpot::join('parking_lots', 'parking_lots.id', '=', 'parking_spots.parking_lot_id')->where('parking_lots.owner_id', '=', $user_id)->get();
-        try {
-
-        } catch (Exception $e) {
-            return NULL;
-        }
-    }
-    */
-
     protected static function newFactory()
     {
         return ParkingSpotFactory::new();
