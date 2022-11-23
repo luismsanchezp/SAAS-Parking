@@ -5,6 +5,7 @@ namespace App\Http\Controllers\api\v1;
 use App\Http\Controllers\Controller;
 use App\Models\ParkingLot;
 use App\Models\ParkingSpot;
+use App\Models\Ticket;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -17,6 +18,8 @@ use App\Http\Resources\ParkingLotResource;
 use App\Enums\VehicleTypeEnum;
 
 use Illuminate\Support\Facades\DB;
+
+use Carbon\Carbon;
 
 class ParkingLotController extends Controller
 {
@@ -120,12 +123,15 @@ class ParkingLotController extends Controller
                 'cars' => $cars,
                 'motorbikes' => $motorbikes
             ],
-            'free_spots' => $free_spots
+            'free_spots' => $free_spots,
+            'income' => $this->getAllTicketsPaidToday($parkingLot->id)
         ];
     }
 
     private function countFreeParkingSpots(int $parkingLotId) {
         return DB::table('parking_spots')
+            ->select('parking_spots.id')
+            ->distinct('parking_spots.id')
             ->leftJoin('tickets', 'tickets.parking_spot_id', '=', 'parking_spots.id')
             ->where(function ($query) {
                 $query->select('remove_date')
@@ -141,11 +147,36 @@ class ParkingLotController extends Controller
 
     private function countParkedVehiclesByType(string $vehicle_type, int $parkingLotId) {
         return DB::table('vehicles')
+            ->select('vehicles.id')
+            ->distinct('vehicles.id')
             ->join('vehicle_types', 'vehicle_types.id', '=', 'vehicles.vehicle_type_id')
             ->join('tickets', 'tickets.vehicle_id', '=', 'vehicles.id')
             ->where('vehicle_types.parking_lot_id', '=', $parkingLotId)
             ->where('vehicle_types.type', '=', $vehicle_type)
             ->where('tickets.remove_date', '=', NULL)->count();
+    }
+
+    private function getAllTicketsPaidToday(int $parkingLotId) {
+
+        $tickets = DB::table('tickets')
+            ->select('tariff', 'entry_date', 'remove_date')
+            ->where('tickets.remove_date', '>=', Carbon::now()->toDateString().' 00:00:00')
+            ->where('tickets.remove_date', '<=', Carbon::now()->toDateTimeString())
+            ->join('parking_spots', 'tickets.parking_spot_id', '=', 'parking_spots.id')
+            ->join('parking_lots', 'parking_spots.parking_lot_id', '=', 'parking_lots.id')
+            ->join('vehicles', 'vehicles.id', '=', 'tickets.vehicle_id')
+            ->join('vehicle_types', 'vehicle_types.id', '=', 'vehicles.vehicle_type_id')
+            ->where('parking_lots.id', '=', $parkingLotId)
+            ->get();
+        $sum = 0;
+        foreach ($tickets as $t) {
+            $entryDate = date_create($t->entry_date);
+            $removeDate = date_create($t->remove_date);
+            $diff = ceil((date_diff($entryDate, $removeDate)->s)/3600);
+            $total = $diff*$t->tariff;
+            $sum += $total;
+        }
+        return $sum;
     }
 
     /**

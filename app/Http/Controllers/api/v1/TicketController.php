@@ -176,7 +176,7 @@ class TicketController extends Controller
                 )
             )->response()->setStatusCode(200);
         } else {
-            return response()->json(['error' => 'Parking Spot is already free.'])
+            return response()->json(['error' => 'Ticket is finished.'])
                 ->setStatusCode(406);
         }
     }

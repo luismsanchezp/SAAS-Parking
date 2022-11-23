@@ -18,8 +18,12 @@ class TicketResource extends JsonResource
             'id' =>$this->id,
             'entry_date' => $this->entry_date,
             'remove_date' => $this->remove_date,
-            'parking_spot' => new ParkingSpotResource($this->whenLoaded('parking_spot')),
-            'vehicle' => new VehicleResource($this->whenLoaded('vehicle')),
+            'parking_spot' => new ParkingSpotResource($this->parking_spot),
+            'vehicle' => new VehicleResource($this->vehicle),
+            $this->mergeWhen(!is_null($this->remove_date), [
+                'time_elapsed_hours' => ceil((date_diff(date_create($this->entry_date), date_create($this->remove_date))->s)/3600),
+                'total' => ($this->vehicle->vehicle_type->tariff)*ceil((date_diff(date_create($this->entry_date), date_create($this->remove_date))->s)/3600),
+            ]),
         ];
     }
 }

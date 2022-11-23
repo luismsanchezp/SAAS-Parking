@@ -19,7 +19,7 @@ class VehicleResource extends JsonResource
             'license_plate' => $this->license_plate,
             'color' => $this->color,
             'person' => new PersonResource($this->whenLoaded('person')),
-            'vehicle_type' => new VehicleTypeResource($this->whenLoaded('vehicle_type')),
+            'vehicle_type' => new VehicleTypeResource($this->vehicle_type),
             'tickets' => TicketResource::collection($this->whenLoaded('tickets')),
         ];
     }

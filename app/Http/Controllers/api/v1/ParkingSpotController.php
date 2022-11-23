@@ -21,15 +21,17 @@ class ParkingSpotController extends Controller
     {
         $user_id = Auth::user()->id;
         if ($parkingLot->owner_id == $user_id){
+            $parkingSpots = ParkingSpot::where('parking_lot_id', $parkingLot->id)->get();
             if ($request->exists('free_spots')){
                 if ($request->input('free_spots')){
                     $parkingSpots = $this->getFreeParkingSpots($parkingLot->id);
+                    return response()->json([
+                        'data' => ParkingSpotResource::collection($parkingSpots)
+                    ], 200);
                 }
-            } else {
-                $parkingSpots = ParkingSpot::where('parking_lot_id', $parkingLot->id)->get();
             }
             return response()->json([
-                'data' => ParkingSpotResource::collection($parkingSpots)
+                'data' => ParkingSpotResource::collection($parkingSpots->loadMissing('tickets'))
             ], 200);
         } else {
             return response()->json(['error' => 'You do not own this parking lot.'])
@@ -38,8 +40,9 @@ class ParkingSpotController extends Controller
     }
 
     private function getFreeParkingSpots(int $parkingLotId){
-        return DB::table('parking_spots')
-            ->select('parking_spots.*')
+        $ids = DB::table('parking_spots')
+            ->select('parking_spots.id')
+            ->distinct('parking_spots.id')
             ->leftJoin('tickets', 'tickets.parking_spot_id', '=', 'parking_spots.id')
             ->where(function ($query) {
                 $query->select('remove_date')
@@ -51,6 +54,11 @@ class ParkingSpotController extends Controller
             ->orWhere('tickets.parking_spot_id', NULL)
             ->where('parking_spots.parking_lot_id', '=', $parkingLotId)
             ->get();
+        $models = collect([]);
+        foreach ($ids as $id) {
+            $models->push(ParkingSpot::find($id->id)->loadMissing('tickets'));
+        }
+        return $models;
     }
 
     /**
