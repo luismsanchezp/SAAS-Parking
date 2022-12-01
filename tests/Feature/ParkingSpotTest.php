@@ -100,18 +100,22 @@ class ParkingSpotTest extends TestCase
         $parkingSpots = ParkingSpot::select('id', 'row', 'column')
             ->where('parking_lot_id', $parkingLot->id)
             ->get()->toArray();
+        $num_parking_spots = ParkingSpot::select('id', 'row', 'column')
+            ->where('parking_lot_id', $parkingLot->id)->count();
 
         $person = $parkingLot->persons->first();
         $vehicle = $person->vehicles->first();
 
-        Ticket::factory()->create([
-            'parking_spot_id' => $parkingSpots[1]['id'],
-            'vehicle_id' => $vehicle->id
-        ]);
+        for ($i = 3; $i < $num_parking_spots-1; $i++) {
+            Ticket::factory()->create([
+                'remove_date' => null,
+                'parking_spot_id' => $parkingSpots[$i]['id'],
+                'vehicle_id' => $vehicle->id
+            ]);
+        }
 
         Ticket::factory()->create([
-            'remove_date' => null,
-            'parking_spot_id' => $parkingSpots[2]['id'],
+            'parking_spot_id' => $parkingSpots[$num_parking_spots-1]['id'],
             'vehicle_id' => $vehicle->id
         ]);
 
