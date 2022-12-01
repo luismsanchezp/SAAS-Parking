@@ -21,9 +21,9 @@ class ParkingLotFactory extends Factory
     public function definition()
     {
         return [
-            'name' => fake()->name(),
+            'name' => fake()->firstName(),
             'rows' => 3,
-            'columns' => 2,
+            'columns' => 1,
             'owner_id' => \App\Models\User::factory(),
         ];
     }
