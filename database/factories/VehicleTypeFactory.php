@@ -22,7 +22,7 @@ class VehicleTypeFactory extends Factory
     {
         return [
             'type' => 'Car',
-            'tariff' => fake()->randomFloat(2),
+            'tariff' => fake()->randomFloat(2,0, 10000),
             'creation_date' => now(),
             'parking_lot_id' => \App\Models\ParkingLot::factory(),
         ];

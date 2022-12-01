@@ -19,7 +19,7 @@ class PersonFactory extends Factory
     public function definition()
     {
         return [
-            'name' => fake()->name(),
+            'name' => fake()->firstName(),
             'surname' => fake()->lastName(),
             'id_type' => 'C.C.',
             'gov_id' => fake()->unique()->randomNumber($nbDigits=7, true),

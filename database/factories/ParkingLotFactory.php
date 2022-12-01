@@ -22,8 +22,8 @@ class ParkingLotFactory extends Factory
     {
         return [
             'name' => fake()->name(),
-            'rows' => 4,
-            'columns' => 1,
+            'rows' => 3,
+            'columns' => 2,
             'owner_id' => \App\Models\User::factory(),
         ];
     }
