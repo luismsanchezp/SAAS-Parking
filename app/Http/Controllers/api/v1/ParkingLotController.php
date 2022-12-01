@@ -124,7 +124,7 @@ class ParkingLotController extends Controller
                 'motorbikes' => $motorbikes
             ],
             'free_spots' => $free_spots,
-            'income' => $this->getAllTicketsPaidToday($parkingLot->id)
+            'todays_income' => $this->getAllTicketsPaidToday($parkingLot->id)
         ];
     }
 
@@ -172,7 +172,7 @@ class ParkingLotController extends Controller
         foreach ($tickets as $t) {
             $entryDate = date_create($t->entry_date);
             $removeDate = date_create($t->remove_date);
-            $diff = ceil((date_diff($entryDate, $removeDate)->s)/3600);
+            $diff = date_diff($entryDate, $removeDate)->h;
             $total = $diff*$t->tariff;
             $sum += $total;
         }
