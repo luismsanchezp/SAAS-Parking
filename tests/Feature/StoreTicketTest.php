@@ -30,7 +30,7 @@ class StoreTicketTest extends TestCase
         $parkingSpot = $parkingLot->parkingSpots->first();
         $person = $parkingLot->persons->first();
         $vehicle = $person->vehicles->first();
-        $dateNow = Carbon::now()->timestamp;
+        $dateNow = Carbon::now()->toDateTimeString();
 
         $response = $this->actingAs($user)
             ->withHeaders(['accept' => 'application/json'])
@@ -40,6 +40,7 @@ class StoreTicketTest extends TestCase
             ->assertStatus(201)
             ->assertJson([
                 'data' => [
+                    'entry_date' => $dateNow,
                     'remove_date' => null,
                     'parking_spot' => [
                         'id' => $parkingSpot->id,
@@ -51,7 +52,13 @@ class StoreTicketTest extends TestCase
                     'tariff' => $vehicle->vehicle_type->tariff,
                 ]
             ]);
-        $this->assertGreaterThanOrEqual($dateNow, strtotime($response->getOriginalContent()['entry_date']));
+        $this->assertDatabaseHas('tickets', [
+            'id' => json_decode($response->getContent(), true)['data']['id'],
+            'entry_date' => $dateNow,
+            'remove_date' => null,
+            'parking_spot_id' => $parkingSpot->id,
+            'vehicle_id' => $vehicle->id
+        ]);
     }
 
     public function test_create_valid_ticket_where_both_parking_spot_and_vehicle_have_a_ticket_history_but_are_available()
@@ -75,7 +82,7 @@ class StoreTicketTest extends TestCase
             ]);
         }
 
-        $dateNow = Carbon::now()->timestamp;
+        $dateNow = Carbon::now()->toDateTimeString();
 
         $response = $this->actingAs($user)
             ->withHeaders(['accept' => 'application/json'])
@@ -85,6 +92,7 @@ class StoreTicketTest extends TestCase
             ->assertStatus(201)
             ->assertJson([
                 'data' => [
+                    'entry_date' => $dateNow,
                     'remove_date' => null,
                     'parking_spot' => [
                         'id' => $parkingSpot->id,
@@ -96,7 +104,13 @@ class StoreTicketTest extends TestCase
                     'tariff' => $vehicle->vehicle_type->tariff,
                 ]
             ]);
-        $this->assertGreaterThanOrEqual($dateNow, strtotime($response->getOriginalContent()['entry_date']));
+        $this->assertDatabaseHas('tickets', [
+            'id' => json_decode($response->getContent(), true)['data']['id'],
+            'entry_date' => $dateNow,
+            'remove_date' => null,
+            'parking_spot_id' => $parkingSpot->id,
+            'vehicle_id' => $vehicle->id
+        ]);
     }
 
     public function test_create_invalid_ticket_where_vehicle_does_not_belong_to_any_users_parking_lots()
@@ -112,6 +126,8 @@ class StoreTicketTest extends TestCase
         $personUserB = $parkingLotUserB->persons->first();
         $vehicleUserB = $personUserB->vehicles->first();
 
+        $num_tickets = Ticket::count();
+
         $response = $this->actingAs($userA)
             ->withHeaders(['accept' => 'application/json'])
             ->post("/api/v1/vehicles/$vehicleUserB->id/tickets", [
@@ -121,6 +137,7 @@ class StoreTicketTest extends TestCase
             ->assertJson([
                 'error' => 'You cannot create tickets with vehicles from parking lots you do not own.'
             ]);
+        $this->assertDatabaseCount('tickets', $num_tickets);
     }
 
     public function test_create_invalid_ticket_where_parking_spot_does_not_belong_to_any_users_parking_lots()
@@ -136,6 +153,8 @@ class StoreTicketTest extends TestCase
         $parkingLotUserB = $userB->parkingLots->first();
         $parkingSpotUserB = $parkingLotUserB->parkingSpots->first();
 
+        $num_tickets = Ticket::count();
+
         $response = $this->actingAs($userA)
             ->withHeaders(['accept' => 'application/json'])
             ->post("/api/v1/vehicles/$vehicleUserA->id/tickets", [
@@ -145,6 +164,7 @@ class StoreTicketTest extends TestCase
             ->assertJson([
                 'error' => 'You cannot use parking spots from other parking lots you do not own.'
             ]);
+        $this->assertDatabaseCount('tickets', $num_tickets);
     }
 
     public function test_create_invalid_ticket_where_vehicle_does_not_belong_to_the_selected_parking_lot()
@@ -159,6 +179,8 @@ class StoreTicketTest extends TestCase
         $parkingLotB = ParkingLot::where('id', $parkingLotA->id+1)->get()->first();
         $parkingSpot = $parkingLotB->parkingSpots->first();
 
+        $num_tickets = Ticket::count();
+
         $response = $this->actingAs($user)
             ->withHeaders(['accept' => 'application/json'])
             ->post("/api/v1/vehicles/$vehicle->id/tickets", [
@@ -168,6 +190,7 @@ class StoreTicketTest extends TestCase
             ->assertJson([
                 'error' => 'Vehicle and parking spot does not belong to the same parking lot.'
             ]);
+        $this->assertDatabaseCount('tickets', $num_tickets);
     }
 
     public function test_create_invalid_ticket_where_parking_spot_is_not_available()
@@ -197,6 +220,8 @@ class StoreTicketTest extends TestCase
             'vehicle_id' => $vehicle->id+1
         ]);
 
+        $num_tickets = Ticket::count();
+
         $response = $this->actingAs($user)
             ->withHeaders(['accept' => 'application/json'])
             ->post("/api/v1/vehicles/$vehicle->id/tickets", [
@@ -206,6 +231,7 @@ class StoreTicketTest extends TestCase
             ->assertJson([
                 'error' => 'Parking Spot is not available.'
             ]);
+        $this->assertDatabaseCount('tickets', $num_tickets);
     }
 
     public function test_create_invalid_ticket_where_vehicle_is_already_parked()
@@ -235,6 +261,8 @@ class StoreTicketTest extends TestCase
             'vehicle_id' => $vehicle->id
         ]);
 
+        $num_tickets = Ticket::count();
+
         $response = $this->actingAs($user)
             ->withHeaders(['accept' => 'application/json'])
             ->post("/api/v1/vehicles/$vehicle->id/tickets", [
@@ -244,5 +272,6 @@ class StoreTicketTest extends TestCase
             ->assertJson([
                 'error' => 'Vehicle is already parked.'
             ]);
+        $this->assertDatabaseCount('tickets', $num_tickets);
     }
 }
