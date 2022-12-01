@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Database\Factories\TicketFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -29,5 +30,10 @@ class Ticket extends Model
     public function vehicle()
     {
         return $this->belongsTo(Vehicle::class, 'vehicle_id');
+    }
+
+    protected static function newFactory()
+    {
+        return TicketFactory::new();
     }
 }

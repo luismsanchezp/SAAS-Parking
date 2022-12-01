@@ -85,7 +85,7 @@ class TicketController extends Controller
                         return null;
                     } else {
                         return response()->json([
-                            'error' => 'Vehicle does not belong to parking lot.'
+                            'error' => 'Vehicle and parking spot does not belong to the same parking lot.'
                         ])->setStatusCode(403);
                     }
                 } else {
