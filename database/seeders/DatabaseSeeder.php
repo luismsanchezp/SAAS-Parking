@@ -51,7 +51,7 @@ class DatabaseSeeder extends Seeder
             $vTs = $pL->vehicleTypes;
             foreach ($people as $person) {
                 foreach ($vTs as $vt) {
-                    Vehicle::factory()->count(1)->create([
+                    Vehicle::factory()->count(2)->create([
                         'person_id' => $person->id,
                         'vehicle_type_id' => $vt->id
                     ]);
