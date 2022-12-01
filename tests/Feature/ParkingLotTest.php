@@ -109,9 +109,11 @@ class ParkingLotTest extends TestCase
         ]);
         Ticket::factory()->create([
             'remove_date' => null,
-            'parking_spot_id' => $parkingSpots[3]['id'],
+            'parking_spot_id' => $parkingSpots[4]['id'],
             'vehicle_id' => $vehicleB->id+2
         ]);
+
+        error_log("FUCK".$num_parking_spots);
 
         $response = $this->actingAs($user)
             ->withHeaders(['accept' => 'application/json'])
@@ -123,7 +125,7 @@ class ParkingLotTest extends TestCase
                         'cars' => 3,
                         'motorbikes' => 2
                     ],
-                    'free_spots' => $num_parking_spots-4
+                    'free_spots' => $num_parking_spots-5
                 ],
             ]);
     }
