@@ -54,7 +54,7 @@ class User extends Authenticatable
     public static function findByUsername(string $username)
     {
         try {
-            return User::where('username', $username)->firstOrFail();
+            return User::where('username', $username);
         } catch (Exception $e) {
             return NULL;
         }
@@ -63,7 +63,7 @@ class User extends Authenticatable
     public static function findByEmail(string $email)
     {
         try {
-            return User::where('email', $email)->firstOrFail();
+            return User::where('email', $email);
         } catch (Exception $e) {
             return NULL;
         }

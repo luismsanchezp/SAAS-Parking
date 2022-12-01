@@ -81,7 +81,13 @@ class TicketController extends Controller
             if ($parkingSpot != null) {
                 $spotParkingLot = $parkingSpot->parking_lot;
                 if ($spotParkingLot->owner_id == $id){
-                    return null;
+                    if ($vehicle->person->parking_lot->id == $spotParkingLot->id) {
+                        return null;
+                    } else {
+                        return response()->json([
+                            'error' => 'Vehicle does not belong to parking lot.'
+                        ])->setStatusCode(403);
+                    }
                 } else {
                     return response()->json([
                         'error' => 'You cannot use parking spots from other parking lots you do not own.'

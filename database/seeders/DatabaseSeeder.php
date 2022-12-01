@@ -33,7 +33,7 @@ class DatabaseSeeder extends Seeder
                 'username' => $username,
                 'email' => $username.'@gmail.com',
             ]);
-        $user = \App\Models\User::findByUsername('vienna')->get()->first();
+        $user = \App\Models\User::findByUsername($username)->get()->first();
         $parkingLots = $user->parkingLots;
         foreach ($parkingLots as $pL) {
             for($r = 1; $r <= $pL->rows; $r++){
